@@ -12,15 +12,21 @@ export const prisma =
         : ["error"],
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Cache in all environments for serverless
+globalForPrisma.prisma = prisma;
 
 const connectDB = async () => {
   try {
+    console.log("Attempting database connection...");
+    console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
     await prisma.$connect();
-    console.log("Database connected successfully");
+    console.log("✓ Database connected successfully");
   } catch (error) {
-    console.error("Database connection failed:", error);
-    // Don't exit process in serverless environments
+    console.error("✗ Database connection failed:", {
+      message: error.message,
+      code: error.code,
+      clientVersion: error.clientVersion,
+    });
     throw error;
   }
 };

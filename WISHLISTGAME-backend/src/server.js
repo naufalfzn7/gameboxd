@@ -33,18 +33,41 @@ app.use(express.urlencoded({ extended: true }));
 
 // Initialize database connection only once
 let dbConnected = false;
+let connectionAttempts = 0;
+const MAX_RETRIES = 3;
 
 const ensureDBConnection = async (req, res, next) => {
-  if (!dbConnected) {
+  if (!dbConnected && connectionAttempts < MAX_RETRIES) {
     try {
+      connectionAttempts++;
+      console.log(
+        `Database connection attempt ${connectionAttempts}/${MAX_RETRIES}`,
+      );
       await connectDB();
       dbConnected = true;
+      connectionAttempts = 0; // Reset on success
     } catch (error) {
-      console.error("Database connection failed:", error);
-      dbConnected = false;
-      return res.status(500).json({ error: "Database connection failed" });
+      console.error(
+        `Connection attempt ${connectionAttempts} failed:`,
+        error.message,
+      );
+
+      if (connectionAttempts >= MAX_RETRIES) {
+        console.error("Max connection attempts reached");
+      }
+
+      return res.status(500).json({
+        error: "Database connection failed",
+        details:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
     }
+  } else if (!dbConnected) {
+    return res.status(500).json({
+      error: "Database connection failed after retries",
+    });
   }
+
   next();
 };
 
