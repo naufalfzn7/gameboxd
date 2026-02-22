@@ -34,6 +34,4 @@ const disconnectDB = async () => {
   }
 };
 
-export { connectDB, disconnectDB, prisma };
-
-export default prisma;
+export { connectDB, disconnectDB };
