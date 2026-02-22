@@ -18,15 +18,27 @@ globalForPrisma.prisma = prisma;
 const connectDB = async () => {
   try {
     console.log("Attempting database connection...");
-    console.log("DATABASE_URL set:", !!process.env.DATABASE_URL);
+    const url = process.env.DATABASE_URL;
+    console.log("DATABASE_URL exists:", !!url);
+    if (url) {
+      console.log("DATABASE_URL format:", url.substring(0, 50) + "...");
+    }
+
     await prisma.$connect();
     console.log("✓ Database connected successfully");
   } catch (error) {
     console.error("✗ Database connection failed:", {
       message: error.message,
       code: error.code,
-      clientVersion: error.clientVersion,
     });
+
+    // Provide helpful error message
+    if (!process.env.DATABASE_URL) {
+      console.error(
+        "💡 ACTION REQUIRED: Set DATABASE_URL in Vercel dashboard → Settings → Environment Variables",
+      );
+    }
+
     throw error;
   }
 };

@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
@@ -16,7 +17,22 @@ import favoriteRouter from "./routes/favorite.routes.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, "..", ".env") });
+// Load .env file only if it exists (for local development)
+const envPath = path.join(__dirname, "..", ".env");
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+  console.log("✓ Loaded .env file");
+} else {
+  console.log("ℹ .env file not found (using environment variables)");
+}
+
+// Debug: log what DATABASE_URL we have
+console.log("DATABASE_URL at server startup:", {
+  exists: !!process.env.DATABASE_URL,
+  value: process.env.DATABASE_URL
+    ? process.env.DATABASE_URL.substring(0, 50) + "..."
+    : "NOT SET",
+});
 
 const app = express();
 
