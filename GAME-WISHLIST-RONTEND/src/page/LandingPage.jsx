@@ -11,8 +11,8 @@ const LandingPage = () => {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/70"></div>
+      {/* Solid overlay */}
+      <div className="absolute inset-0 bg-black/60"></div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center text-white px-4">

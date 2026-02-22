@@ -2,9 +2,7 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useGetWishListQuery } from "../services/wishListApi";
-import { useGetGamesQuery } from "../services/gameApi";
 import {
-  FaGamepad,
   FaHeart,
   FaTrophy,
   FaClock,
@@ -16,18 +14,16 @@ import {
 const Home = () => {
   const user = useSelector((state) => state.auth.user);
   const { data: wishlistData } = useGetWishListQuery();
-  const { data: gamesData } = useGetGamesQuery({ page: 1, limit: 100 });
 
   const wishlistItems = wishlistData?.data || [];
-  const allGames = gamesData?.data || [];
 
   // Calculate statistics
   const stats = useMemo(() => {
     const pendingCount = wishlistItems.filter(
-      (item) => item.status === "PENDING"
+      (item) => item.status === "PENDING",
     ).length;
     const purchasedCount = wishlistItems.filter(
-      (item) => item.status === "PURCHASED"
+      (item) => item.status === "PURCHASED",
     ).length;
 
     // Get most common genre from wishlist
@@ -41,17 +37,25 @@ const Home = () => {
     });
 
     const favoriteGenre = Object.entries(genreCounts).sort(
-      (a, b) => b[1] - a[1]
+      (a, b) => b[1] - a[1],
     )[0]?.[0];
 
     return {
-      totalGames: allGames.length,
       wishlistCount: wishlistItems.length,
       pendingCount,
       purchasedCount,
       favoriteGenre,
     };
-  }, [wishlistItems, allGames]);
+  }, [wishlistItems]);
+
+  const latestWishlist = useMemo(() => {
+    if (!wishlistItems.length) return null;
+    return [...wishlistItems].sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    })[0];
+  }, [wishlistItems]);
 
   if (!user) {
     return (
@@ -72,7 +76,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-white p-5">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-8 rounded-xl shadow-lg mb-8 border border-gray-700">
+      <div className="bg-gray-900 text-white p-8 rounded-xl shadow-lg mb-8 border border-gray-700">
         <h1 className="text-4xl font-bold mb-2">
           {timeGreeting()}, {user?.name}! 👋
         </h1>
@@ -83,16 +87,41 @@ const Home = () => {
 
       {/* Statistics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Games */}
+        {/* Latest Wishlist */}
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-600 font-semibold">Total Games</h3>
-            <div className="bg-gray-200 p-3 rounded-lg">
-              <FaGamepad className="text-gray-700 text-xl" />
+            <h3 className="text-gray-600 font-semibold">Latest Added</h3>
+            <div className="bg-blue-100 p-3 rounded-lg">
+              <FaShoppingCart className="text-blue-600 text-xl" />
             </div>
           </div>
-          <p className="text-3xl font-bold text-black">{stats.totalGames}</p>
-          <p className="text-sm text-gray-500 mt-2">Available in library</p>
+          {latestWishlist?.game ? (
+            <>
+              <p className="text-lg font-semibold text-black line-clamp-1">
+                {latestWishlist.game.title || "Untitled game"}
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Added{" "}
+                {latestWishlist.createdAt
+                  ? new Date(latestWishlist.createdAt).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )
+                  : "recently"}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-lg font-semibold text-black">No wishlist</p>
+              <p className="text-sm text-gray-500 mt-2">
+                Add your first game to get started
+              </p>
+            </>
+          )}
         </div>
 
         {/* Wishlist Count */}
@@ -139,50 +168,64 @@ const Home = () => {
         {/* Recent Wishlist */}
         <div className="lg:col-span-2">
           <div className="bg-white border border-gray-200 rounded-xl shadow-md overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white p-6 flex items-center justify-between border-b border-gray-600">
+            <div className="bg-gray-800 text-white p-6 flex items-center justify-between border-b border-gray-600">
               <h2 className="text-2xl font-bold">Recent Wishlist</h2>
               <FaFire className="text-xl" />
             </div>
 
             {recentWishlist.length > 0 ? (
               <div className="divide-y divide-gray-200">
-                {recentWishlist.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={`/gamelist/${item.game.id}`}
-                    className="p-4 hover:bg-gray-50 transition-colors flex items-center gap-4"
-                  >
-                    <img
-                      src={item.game.urlPicture}
-                      alt={item.game.title}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-black hover:text-gray-600 transition-colors">
-                        {item.game.title}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span
-                          className={`text-xs font-semibold px-2 py-1 rounded ${
-                            item.status === "PURCHASED"
-                              ? "bg-green-100 text-green-700"
-                              : item.status === "PENDING"
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                        {item.game.genre && (
-                          <span className="text-xs text-gray-500">
-                            {item.game.genre[0]}
+                {recentWishlist.map((item) => {
+                  const game = item.game;
+                  const hasGame = Boolean(game);
+                  const content = (
+                    <div className="p-4 hover:bg-gray-50 transition-colors flex items-center gap-4">
+                      <img
+                        src={game?.urlPicture || "/images/game.jpg"}
+                        alt={game?.title || "Game"}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-black hover:text-gray-600 transition-colors">
+                          {game?.title || "Unknown game"}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span
+                            className={`text-xs font-semibold px-2 py-1 rounded ${
+                              item.status === "PURCHASED"
+                                ? "bg-green-100 text-green-700"
+                                : item.status === "PENDING"
+                                  ? "bg-amber-100 text-amber-700"
+                                  : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {item.status}
                           </span>
-                        )}
+                          {game?.genre && (
+                            <span className="text-xs text-gray-500">
+                              {game.genre[0]}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      <FaArrowRight className="text-gray-400" />
                     </div>
-                    <FaArrowRight className="text-gray-400" />
-                  </Link>
-                ))}
+                  );
+
+                  return hasGame ? (
+                    <Link
+                      key={item.id}
+                      to={`/gamelist/${game.id}`}
+                      className="block"
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <div key={item.id} className="block">
+                      {content}
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="p-8 text-center text-gray-500">

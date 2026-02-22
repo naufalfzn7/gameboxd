@@ -68,7 +68,7 @@ const Wishlist = () => {
           Swal.fire(
             "Removed!",
             `${gameTitle} has been removed from your wishlist.`,
-            "success"
+            "success",
           );
         } catch (err) {
           Swal.fire("Error!", "Failed to remove from wishlist.", "error");
@@ -88,7 +88,7 @@ const Wishlist = () => {
       Swal.fire(
         "Success!",
         `${gameTitle} has been marked as ${nextLabel.toLowerCase()}.`,
-        "success"
+        "success",
       );
     } catch (err) {
       console.error("Update status error:", err);
@@ -159,129 +159,144 @@ const Wishlist = () => {
                 key={item.id}
                 className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
               >
-                <div className="flex flex-col sm:flex-row gap-6 p-6">
-                  {/* Game Image */}
-                  <div
-                    onClick={() => handleGameClick(item.game.id)}
-                    className="flex-shrink-0 w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-200 cursor-pointer group"
-                  >
-                    <img
-                      src={item.game.urlPicture}
-                      alt={item.game.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-
-                  {/* Game Info */}
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <h2
-                        onClick={() => handleGameClick(item.game.id)}
-                        className="text-2xl font-bold text-black mb-2 cursor-pointer hover:text-gray-600 transition-colors"
+                {(() => {
+                  const game = item.game;
+                  const hasGame = Boolean(game);
+                  const releaseDateText = game?.releaseDate
+                    ? new Date(game.releaseDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : "Unknown";
+                  return (
+                    <div className="flex flex-col sm:flex-row gap-6 p-6">
+                      {/* Game Image */}
+                      <div
+                        onClick={() => hasGame && handleGameClick(game.id)}
+                        className={`flex-shrink-0 w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-200 ${
+                          hasGame ? "cursor-pointer group" : "cursor-default"
+                        }`}
                       >
-                        {item.game.title}
-                      </h2>
-
-                      {/* Genres */}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {item.game.genre && item.game.genre.length > 0 ? (
-                          item.game.genre.map((g, idx) => (
-                            <span
-                              key={idx}
-                              className="inline-block px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full"
-                            >
-                              {g}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-xs text-gray-500">
-                            No genre
-                          </span>
-                        )}
+                        <img
+                          src={game?.urlPicture || "/images/game.jpg"}
+                          alt={game?.title || "Game"}
+                          className={`w-full h-full object-cover ${
+                            hasGame
+                              ? "group-hover:scale-110 transition-transform duration-300"
+                              : ""
+                          }`}
+                        />
                       </div>
 
                       {/* Game Info */}
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <p>
-                          <span className="font-semibold text-black">
-                            Developer:
-                          </span>{" "}
-                          {item.game.developer}
-                        </p>
-                        <p>
-                          <span className="font-semibold text-black">
-                            Publisher:
-                          </span>{" "}
-                          {item.game.publisher}
-                        </p>
-                        <p>
-                          <span className="font-semibold text-black">
-                            Released:
-                          </span>{" "}
-                          {new Date(item.game.releaseDate).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
-                          )}
-                        </p>
-                      </div>
-                    </div>
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <h2
+                            onClick={() => hasGame && handleGameClick(game.id)}
+                            className={`text-2xl font-bold text-black mb-2 ${
+                              hasGame
+                                ? "cursor-pointer hover:text-gray-600 transition-colors"
+                                : "cursor-default"
+                            }`}
+                          >
+                            {game?.title || "Unknown game"}
+                          </h2>
 
-                    {/* Status and Actions */}
-                    <div className="mt-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-                      {/* Status Badge */}
-                      <div className="flex items-center gap-2">
-                        {(() => {
-                          const config = getStatusConfig(item.status);
-                          const Icon = config.icon;
-                          return (
-                            <div
-                              className={`flex items-center gap-2 px-4 py-2 ${config.bgColor} rounded-lg`}
-                            >
-                              <Icon className={config.textColor} />
-                              <span
-                                className={`text-sm font-semibold ${config.textColor}`}
-                              >
-                                {config.label}
+                          {/* Genres */}
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {game?.genre && game.genre.length > 0 ? (
+                              game.genre.map((g, idx) => (
+                                <span
+                                  key={idx}
+                                  className="inline-block px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full"
+                                >
+                                  {g}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-gray-500">
+                                No genre
                               </span>
-                            </div>
-                          );
-                        })()}
-                      </div>
+                            )}
+                          </div>
 
-                      {/* Action Buttons */}
-                      <div className="flex gap-2 w-full sm:w-auto">
-                        {/* Toggle Status Button */}
-                        <button
-                          onClick={() =>
-                            handleUpdateStatus(
-                              item.id,
-                              item.status,
-                              item.game.title
-                            )
-                          }
-                          className="flex-1 sm:flex-initial px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-medium text-sm border border-gray-700"
-                        >
-                          {getStatusButtonText(item.status)}
-                        </button>
+                          {/* Game Info */}
+                          <div className="space-y-1 text-sm text-gray-600">
+                            <p>
+                              <span className="font-semibold text-black">
+                                Rating:
+                              </span>{" "}
+                              {typeof game?.rating === "number"
+                                ? game.rating.toFixed(1)
+                                : "Unknown"}
+                            </p>
+                            <p>
+                              <span className="font-semibold text-black">
+                                Released:
+                              </span>{" "}
+                              {releaseDateText}
+                            </p>
+                          </div>
+                        </div>
 
-                        {/* Remove Button */}
-                        <button
-                          onClick={() =>
-                            handleRemoveFromWishList(item.id, item.game.title)
-                          }
-                          className="flex-1 sm:flex-initial px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center justify-center gap-2"
-                        >
-                          <FaTrash className="text-sm" />
-                          <span>Remove</span>
-                        </button>
+                        {/* Status and Actions */}
+                        <div className="mt-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                          {/* Status Badge */}
+                          <div className="flex items-center gap-2">
+                            {(() => {
+                              const config = getStatusConfig(item.status);
+                              const Icon = config.icon;
+                              return (
+                                <div
+                                  className={`flex items-center gap-2 px-4 py-2 ${config.bgColor} rounded-lg`}
+                                >
+                                  <Icon className={config.textColor} />
+                                  <span
+                                    className={`text-sm font-semibold ${config.textColor}`}
+                                  >
+                                    {config.label}
+                                  </span>
+                                </div>
+                              );
+                            })()}
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2 w-full sm:w-auto">
+                            {/* Toggle Status Button */}
+                            <button
+                              onClick={() =>
+                                handleUpdateStatus(
+                                  item.id,
+                                  item.status,
+                                  item.game.title,
+                                )
+                              }
+                              className="flex-1 sm:flex-initial px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-medium text-sm border border-gray-700"
+                            >
+                              {getStatusButtonText(item.status)}
+                            </button>
+
+                            {/* Remove Button */}
+                            <button
+                              onClick={() =>
+                                handleRemoveFromWishList(
+                                  item.id,
+                                  item.game.title,
+                                )
+                              }
+                              className="flex-1 sm:flex-initial px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center justify-center gap-2"
+                            >
+                              <FaTrash className="text-sm" />
+                              <span>Remove</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
             ))}
           </div>

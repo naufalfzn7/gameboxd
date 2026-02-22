@@ -1,34 +1,32 @@
-import prisma from "../config/db.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
+import {
+  fetchRawgGameById,
+  fetchRawgGames,
+  mapRawgGameToDetail,
+  mapRawgGameToSummary,
+} from "../services/rawgApi.js";
 
 export const getAllGames = asyncHandler(async (req, res) => {
   // Get pagination parameters from query string with defaults
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+  const search = req.query.search || undefined;
 
-  // Get total count for pagination metadata
-  const totalGames = await prisma.game.count();
-
-  // Get paginated games
-  const games = await prisma.game.findMany({
-    select: {
-      id: true,
-      title: true,
-      genre: true,
-      releaseDate: true,
-      urlPicture: true,
-    },
-    skip: skip,
-    take: limit,
+  const rawgResponse = await fetchRawgGames({
+    page,
+    pageSize: limit,
+    search,
   });
+
+  const games = (rawgResponse.results || []).map(mapRawgGameToSummary);
+  const totalGames = rawgResponse.count || 0;
 
   res.status(200).json({
     success: true,
     data: games,
     pagination: {
       currentPage: page,
-      totalPages: Math.ceil(totalGames / limit),
+      totalPages: totalGames ? Math.ceil(totalGames / limit) : 0,
       totalGames: totalGames,
       limit: limit,
     },
@@ -37,15 +35,15 @@ export const getAllGames = asyncHandler(async (req, res) => {
 
 export const getGameById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const game = await prisma.game.findUnique({
-    where: { id: id },
-  });
-  if (!game) {
-    return res.status(404).json({
+  const gameId = Number(id);
+  if (!Number.isInteger(gameId) || gameId <= 0) {
+    return res.status(400).json({
       success: false,
-      message: "Game not found",
+      message: "Invalid game ID",
     });
   }
+  const rawgGame = await fetchRawgGameById(gameId);
+  const game = mapRawgGameToDetail(rawgGame);
   res.status(200).json({
     success: true,
     data: game,

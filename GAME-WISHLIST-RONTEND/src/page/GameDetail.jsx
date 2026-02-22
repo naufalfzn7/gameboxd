@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useGetGameByIdQuery } from "../services/gameApi";
 import { useAddToWishListMutation } from "../services/wishListApi";
+import { useMeQuery } from "../services/usersApi";
+import {
+  useAddReviewMutation,
+  useDeleteReviewMutation,
+  useGetReviewsByGameQuery,
+  useUpdateReviewMutation,
+} from "../services/reviewApi";
 import Swal from "sweetalert2";
 
 const GameDetail = () => {
@@ -9,10 +17,30 @@ const GameDetail = () => {
   const navigate = useNavigate();
   const { data, isLoading, error } = useGetGameByIdQuery(gameId);
   const [addToWishList, { isLoading: isAdding }] = useAddToWishListMutation();
+  const token = useSelector((state) => state.auth.token);
+  const { data: meData } = useMeQuery(undefined, { skip: !token });
+  const meId = meData?.data?.id;
+
+  const {
+    data: reviewsData,
+    isLoading: reviewsLoading,
+    error: reviewsError,
+  } = useGetReviewsByGameQuery(gameId, { skip: !gameId || !token });
+  const [addReview, { isLoading: isAddingReview }] = useAddReviewMutation();
+  const [updateReview, { isLoading: isUpdatingReview }] =
+    useUpdateReviewMutation();
+  const [deleteReview, { isLoading: isDeletingReview }] =
+    useDeleteReviewMutation();
+
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editingRating, setEditingRating] = useState(5);
+  const [editingComment, setEditingComment] = useState("");
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto mb-4"></div>
           <p className="text-xl text-gray-300">Loading game details...</p>
@@ -23,7 +51,7 @@ const GameDetail = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
         <div className="text-center">
           <p className="text-xl text-red-400 mb-4">
             Error loading game details
@@ -40,6 +68,28 @@ const GameDetail = () => {
   }
 
   const game = data?.data;
+  const genres = Array.isArray(game?.genre) ? game.genre : [];
+  const displayRating = typeof game?.rating === "number" ? game.rating : 0;
+  const releaseDateText = game?.releaseDate
+    ? new Date(game.releaseDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Unknown";
+  const updatedDateText = game?.rawg?.updated
+    ? new Date(game.rawg.updated).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Unknown";
+  const platformNames = Array.isArray(game?.platforms)
+    ? game.platforms
+        .map((item) => item?.platform?.name)
+        .filter(Boolean)
+        .join(", ")
+    : "";
 
   const handleAddToWishList = async () => {
     try {
@@ -47,7 +97,7 @@ const GameDetail = () => {
       Swal.fire(
         "Success!",
         `${game.title} has been added to your wishlist.`,
-        "success"
+        "success",
       );
     } catch (err) {
       console.error("Add to wishlist error:", err);
@@ -57,9 +107,68 @@ const GameDetail = () => {
     }
   };
 
+  const handleAddReview = async (event) => {
+    event.preventDefault();
+    try {
+      await addReview({
+        gameId,
+        rating,
+        comment,
+      }).unwrap();
+      setRating(5);
+      setComment("");
+      Swal.fire("Success!", "Review added successfully.", "success");
+    } catch (err) {
+      const errorMessage =
+        err?.data?.message || err?.message || "Failed to add review.";
+      Swal.fire("Error!", errorMessage, "error");
+    }
+  };
+
+  const handleStartEdit = (review) => {
+    setEditingReviewId(review.id);
+    setEditingRating(review.rating);
+    setEditingComment(review.comment);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setEditingRating(5);
+    setEditingComment("");
+  };
+
+  const handleUpdateReview = async (event) => {
+    event.preventDefault();
+    try {
+      await updateReview({
+        reviewId: editingReviewId,
+        rating: editingRating,
+        comment: editingComment,
+        gameId,
+      }).unwrap();
+      handleCancelEdit();
+      Swal.fire("Success!", "Review updated successfully.", "success");
+    } catch (err) {
+      const errorMessage =
+        err?.data?.message || err?.message || "Failed to update review.";
+      Swal.fire("Error!", errorMessage, "error");
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      await deleteReview({ reviewId, gameId }).unwrap();
+      Swal.fire("Deleted!", "Review deleted successfully.", "success");
+    } catch (err) {
+      const errorMessage =
+        err?.data?.message || err?.message || "Failed to delete review.";
+      Swal.fire("Error!", errorMessage, "error");
+    }
+  };
+
   if (!game) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-gray-900">
         <div className="text-center">
           <p className="text-xl text-gray-300 mb-4">Game not found</p>
           <button
@@ -74,7 +183,7 @@ const GameDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-gray-900">
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 pt-6">
         <button
@@ -105,11 +214,11 @@ const GameDetail = () => {
           <div className="relative">
             <div className="relative overflow-hidden rounded-2xl shadow-2xl">
               <img
-                src={game.urlPicture}
+                src={game.urlPicture || "/images/game.jpg"}
                 alt={game.title}
                 className="w-full h-auto object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute inset-0 bg-black/40"></div>
             </div>
 
             {/* Rating Card */}
@@ -123,7 +232,7 @@ const GameDetail = () => {
                         <svg
                           key={i}
                           className={`w-5 h-5 ${
-                            i < Math.round(game.rating)
+                            i < Math.round(displayRating)
                               ? "text-yellow-400"
                               : "text-gray-600"
                           }`}
@@ -135,7 +244,7 @@ const GameDetail = () => {
                       ))}
                     </div>
                     <span className="text-2xl font-bold text-white">
-                      {game.rating.toFixed(1)}
+                      {displayRating.toFixed(1)}
                     </span>
                     <span className="text-gray-400">/ 5.0</span>
                   </div>
@@ -152,14 +261,20 @@ const GameDetail = () => {
                 {game.title}
               </h1>
               <div className="flex flex-wrap gap-2 mb-4">
-                {game.genre.map((g, idx) => (
-                  <span
-                    key={idx}
-                    className="px-4 py-2 bg-gray-800 text-white text-sm font-semibold rounded-full shadow-lg border border-gray-700 hover:bg-gray-900 transition-colors"
-                  >
-                    {g}
+                {genres.length > 0 ? (
+                  genres.map((g, idx) => (
+                    <span
+                      key={idx}
+                      className="px-4 py-2 bg-gray-800 text-white text-sm font-semibold rounded-full shadow-lg border border-gray-700 hover:bg-gray-900 transition-colors"
+                    >
+                      {g}
+                    </span>
+                  ))
+                ) : (
+                  <span className="px-4 py-2 bg-gray-800 text-white text-sm font-semibold rounded-full shadow-lg border border-gray-700">
+                    Unknown genre
                   </span>
-                ))}
+                )}
               </div>
             </div>
 
@@ -182,13 +297,13 @@ const GameDetail = () => {
                 About This Game
               </h2>
               <p className="text-gray-300 text-lg leading-relaxed">
-                {game.description}
+                {game.description || "No description available."}
               </p>
             </div>
 
             {/* Info Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-              {/* Developer */}
+              {/* Platforms */}
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700">
                 <div className="flex items-center gap-3 mb-2">
                   <svg
@@ -205,15 +320,15 @@ const GameDetail = () => {
                     />
                   </svg>
                   <p className="text-sm text-gray-400 uppercase tracking-wider">
-                    Developer
+                    Platforms
                   </p>
                 </div>
                 <p className="text-white text-lg font-semibold">
-                  {game.developer}
+                  {platformNames || "Unknown"}
                 </p>
               </div>
 
-              {/* Publisher */}
+              {/* ESRB */}
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700">
                 <div className="flex items-center gap-3 mb-2">
                   <svg
@@ -230,11 +345,11 @@ const GameDetail = () => {
                     />
                   </svg>
                   <p className="text-sm text-gray-400 uppercase tracking-wider">
-                    Publisher
+                    ESRB Rating
                   </p>
                 </div>
                 <p className="text-white text-lg font-semibold">
-                  {game.publisher}
+                  {game?.esrbRating?.name || "Not rated"}
                 </p>
               </div>
 
@@ -259,15 +374,11 @@ const GameDetail = () => {
                   </p>
                 </div>
                 <p className="text-white text-lg font-semibold">
-                  {new Date(game.releaseDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {releaseDateText}
                 </p>
               </div>
 
-              {/* Added Date */}
+              {/* Last Updated */}
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700">
                 <div className="flex items-center gap-3 mb-2">
                   <svg
@@ -284,15 +395,11 @@ const GameDetail = () => {
                     />
                   </svg>
                   <p className="text-sm text-gray-400 uppercase tracking-wider">
-                    Added to Library
+                    Last Updated
                   </p>
                 </div>
                 <p className="text-white text-lg font-semibold">
-                  {new Date(game.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  {updatedDateText}
                 </p>
               </div>
             </div>
@@ -302,11 +409,189 @@ const GameDetail = () => {
               <button
                 onClick={handleAddToWishList}
                 disabled={isAdding}
-                className="flex-1 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600"
+                className="flex-1 bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600"
               >
                 {isAdding ? "Adding..." : "Add to Wishlist"}
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Reviews */}
+        <div className="mt-12">
+          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6">
+            <h2 className="text-2xl font-bold text-white mb-4">Reviews</h2>
+
+            {!token && (
+              <p className="text-gray-400 mb-6">
+                Login terlebih dahulu untuk menambahkan review.
+              </p>
+            )}
+
+            {token && (
+              <form onSubmit={handleAddReview} className="mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-2">
+                      Rating
+                    </label>
+                    <select
+                      value={rating}
+                      onChange={(event) =>
+                        setRating(Number(event.target.value))
+                      }
+                      className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2"
+                    >
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="md:col-span-1">
+                    <label className="block text-sm text-gray-400 mb-2">
+                      Comment
+                    </label>
+                    <textarea
+                      value={comment}
+                      onChange={(event) => setComment(event.target.value)}
+                      className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2 h-24"
+                      placeholder="Tulis review kamu..."
+                      maxLength={500}
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isAddingReview}
+                  className="mt-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg disabled:opacity-50"
+                >
+                  {isAddingReview ? "Submitting..." : "Submit Review"}
+                </button>
+              </form>
+            )}
+
+            {reviewsLoading && (
+              <p className="text-gray-400">Loading reviews...</p>
+            )}
+
+            {reviewsError && (
+              <p className="text-red-400">Gagal memuat review.</p>
+            )}
+
+            {!reviewsLoading && !reviewsError && (
+              <div className="space-y-4">
+                {reviewsData?.data?.length === 0 && (
+                  <p className="text-gray-400">Belum ada review.</p>
+                )}
+
+                {reviewsData?.data?.map((review) => (
+                  <div
+                    key={review.id}
+                    className="bg-gray-800/60 border border-gray-700 rounded-xl p-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-white font-semibold">
+                          {review.user?.name || review.user?.email || "User"}
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {new Date(review.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            },
+                          )}
+                        </p>
+                      </div>
+                      <div className="text-yellow-400 font-semibold">
+                        {review.rating} / 5
+                      </div>
+                    </div>
+
+                    {editingReviewId === review.id ? (
+                      <form onSubmit={handleUpdateReview} className="mt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm text-gray-400 mb-2">
+                              Rating
+                            </label>
+                            <select
+                              value={editingRating}
+                              onChange={(event) =>
+                                setEditingRating(Number(event.target.value))
+                              }
+                              className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2"
+                            >
+                              {[1, 2, 3, 4, 5].map((value) => (
+                                <option key={value} value={value}>
+                                  {value}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm text-gray-400 mb-2">
+                              Comment
+                            </label>
+                            <textarea
+                              value={editingComment}
+                              onChange={(event) =>
+                                setEditingComment(event.target.value)
+                              }
+                              className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2 h-24"
+                              maxLength={500}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-3 mt-4">
+                          <button
+                            type="submit"
+                            disabled={isUpdatingReview}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
+                          >
+                            {isUpdatingReview ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <p className="text-gray-300 mt-3">{review.comment}</p>
+                    )}
+
+                    {review.userId === meId &&
+                      editingReviewId !== review.id && (
+                        <div className="flex gap-3 mt-4">
+                          <button
+                            type="button"
+                            onClick={() => handleStartEdit(review)}
+                            className="text-blue-400 hover:text-blue-300"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteReview(review.id)}
+                            disabled={isDeletingReview}
+                            className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

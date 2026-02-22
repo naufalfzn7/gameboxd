@@ -15,12 +15,20 @@ const gameApi = createApi({
   tagTypes: ["game"],
   endpoints: (builder) => ({
     getGames: builder.query({
-      query: ({ page = 1, limit = 10 } = {}) => `/?page=${page}&limit=${limit}`, // GET /api/games/?page=1&limit=10
+      query: ({ page = 1, limit = 10, search } = {}) => {
+        const params = new URLSearchParams();
+        params.set("page", page);
+        params.set("limit", limit);
+        if (search) {
+          params.set("search", search);
+        }
+        return `/?${params.toString()}`; // GET /api/games/?page=1&limit=10&search=...
+      },
       providesTags: ["game"],
     }),
     getGameById: builder.query({
       query: (id) => `/${id}`, // GET /api/games/:id
-      providesTags: ["game"],
+      providesTags: (result, error, id) => [{ type: "game", id }],
     }),
   }),
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useGetGamesQuery } from "../services/gameApi";
 import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
@@ -6,21 +6,26 @@ import { FaSearch } from "react-icons/fa";
 const GameList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(8);
+  const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const { data, error, isLoading } = useGetGamesQuery({
     page: currentPage,
     limit,
+    search: searchQuery,
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput.trim());
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const handleClick = (gameId) => {
     navigate(`/gamelist/${gameId}`);
   };
-
-  // Filter games based on search query
-  const filteredGames = (data?.data || []).filter((game) =>
-    game.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   if (isLoading) {
     return (
@@ -38,7 +43,7 @@ const GameList = () => {
     );
   }
 
-  const games = filteredGames;
+  const games = data?.data || [];
 
   return (
     <div className="min-h-screen bg-white p-6">
@@ -53,16 +58,17 @@ const GameList = () => {
             <input
               type="text"
               placeholder="Search games by title..."
-              value={searchQuery}
+              value={searchInput}
               onChange={(e) => {
-                setSearchQuery(e.target.value);
+                setSearchInput(e.target.value);
                 setCurrentPage(1); // Reset to first page on search
               }}
               className="flex-1 bg-transparent outline-none text-black placeholder-gray-400"
             />
-            {searchQuery && (
+            {searchInput && (
               <button
                 onClick={() => {
+                  setSearchInput("");
                   setSearchQuery("");
                   setCurrentPage(1);
                 }}
@@ -77,7 +83,7 @@ const GameList = () => {
         {games.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-lg text-gray-600">
-              {searchQuery ? "No games match your search" : "No games found"}
+              {searchInput ? "No games match your search" : "No games found"}
             </p>
           </div>
         ) : (
@@ -93,7 +99,7 @@ const GameList = () => {
                   className="relative overflow-hidden bg-gray-200 h-64"
                 >
                   <img
-                    src={game.urlPicture}
+                    src={game.urlPicture || "/images/game.jpg"}
                     alt={game.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
@@ -129,11 +135,16 @@ const GameList = () => {
                       <span className="font-semibold text-black">
                         Released:{" "}
                       </span>
-                      {new Date(game.releaseDate).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {game.releaseDate
+                        ? new Date(game.releaseDate).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            },
+                          )
+                        : "Unknown"}
                     </p>
                   </div>
                 </div>
@@ -186,7 +197,7 @@ const GameList = () => {
               <div className="flex items-center gap-1">
                 {Array.from(
                   { length: data.pagination.totalPages },
-                  (_, i) => i + 1
+                  (_, i) => i + 1,
                 )
                   .filter((page) => {
                     // Show first page, last page, current page, and adjacent pages
@@ -220,7 +231,7 @@ const GameList = () => {
               <button
                 onClick={() =>
                   setCurrentPage((prev) =>
-                    Math.min(prev + 1, data.pagination.totalPages)
+                    Math.min(prev + 1, data.pagination.totalPages),
                   )
                 }
                 disabled={currentPage === data.pagination.totalPages}

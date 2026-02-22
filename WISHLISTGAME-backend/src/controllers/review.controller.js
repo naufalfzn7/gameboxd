@@ -1,42 +1,68 @@
 import prisma from "../config/db.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
+import {
+  fetchRawgGameById,
+  mapRawgGameToSummary,
+} from "../services/rawgApi.js";
+
+const buildGameMap = async (gameIds) => {
+  const uniqueIds = Array.from(new Set(gameIds));
+  const pairs = await Promise.all(
+    uniqueIds.map(async (gameId) => {
+      try {
+        const rawgGame = await fetchRawgGameById(gameId);
+        return [gameId, mapRawgGameToSummary(rawgGame)];
+      } catch (fetchError) {
+        return [gameId, null];
+      }
+    }),
+  );
+  return new Map(pairs);
+};
 
 export const getAllReviews = asyncHandler(async (req, res) => {
   const reviews = await prisma.review.findMany({
     include: {
       user: true,
-      game: true,
     },
   });
-  if (reviews.length === 0 || !reviews) {
-    const error = new Error("No reviews found");
-    error.status = 404;
-    throw error;
-  }
+  const gameMap = await buildGameMap(reviews.map((review) => review.gameId));
+  const data = reviews.map((review) => ({
+    ...review,
+    game: gameMap.get(review.gameId) || null,
+  }));
   res.status(200).json({
     success: true,
-    data: reviews,
+    data,
   });
 });
 
 export const getReviewByGameId = asyncHandler(async (req, res) => {
   const { gameId } = req.params;
+  const parsedGameId = Number(gameId);
+  if (!Number.isInteger(parsedGameId) || parsedGameId <= 0) {
+    const error = new Error("Game ID is required");
+    error.status = 400;
+    throw error;
+  }
   const reviews = await prisma.review.findMany({
-    where: { gameId: gameId },
+    where: { gameId: parsedGameId },
     include: {
       user: true,
-      game: true,
     },
     orderBy: { createdAt: "desc" },
   });
-  if (reviews.length === 0 || !reviews) {
-    const error = new Error("No reviews found for this game");
-    error.status = 404;
-    throw error;
+  let game = null;
+  try {
+    const rawgGame = await fetchRawgGameById(parsedGameId);
+    game = mapRawgGameToSummary(rawgGame);
+  } catch (fetchError) {
+    game = null;
   }
   res.status(200).json({
     success: true,
     data: reviews,
+    game,
   });
 });
 
@@ -46,29 +72,57 @@ export const getReviewByUserId = asyncHandler(async (req, res) => {
     where: { userId: userId },
     include: {
       user: true,
-      game: true,
     },
   });
-  if (reviews.length === 0 || !reviews) {
-    const error = new Error("No reviews found for this user");
-    error.status = 404;
-    throw error;
-  }
+  const gameMap = await buildGameMap(reviews.map((review) => review.gameId));
+  const data = reviews.map((review) => ({
+    ...review,
+    game: gameMap.get(review.gameId) || null,
+  }));
   res.status(200).json({
     success: true,
-    data: reviews,
+    data,
   });
 });
 
 export const addReview = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { gameId, rating, comment } = req.body;
+  const parsedGameId = Number(gameId);
+  if (!Number.isInteger(parsedGameId) || parsedGameId <= 0) {
+    const error = new Error("Game ID is required");
+    error.status = 400;
+    throw error;
+  }
+
+  const ratingNumber = Number(rating);
+  if (!Number.isInteger(ratingNumber) || ratingNumber < 1 || ratingNumber > 5) {
+    const error = new Error("Rating must be an integer between 1 and 5");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!comment || !comment.trim()) {
+    const error = new Error("Comment is required");
+    error.status = 400;
+    throw error;
+  }
+
+  const existingReview = await prisma.review.findFirst({
+    where: { userId, gameId: parsedGameId },
+  });
+  if (existingReview) {
+    const error = new Error("You already reviewed this game");
+    error.status = 409;
+    throw error;
+  }
+
   const newReview = await prisma.review.create({
     data: {
       userId: userId,
-      gameId: gameId,
-      rating,
-      comment,
+      gameId: parsedGameId,
+      rating: ratingNumber,
+      comment: comment.trim(),
     },
   });
   if (!newReview) {
@@ -76,7 +130,6 @@ export const addReview = asyncHandler(async (req, res) => {
     error.status = 500;
     throw error;
   }
-  io.emit("newReview", newReview);
   res.status(201).json({
     success: true,
     data: newReview,
@@ -125,12 +178,39 @@ export const updateReview = asyncHandler(async (req, res) => {
     error.status = 403;
     throw error;
   }
+
+  const data = {};
+  if (rating !== undefined) {
+    const ratingNumber = Number(rating);
+    if (
+      !Number.isInteger(ratingNumber) ||
+      ratingNumber < 1 ||
+      ratingNumber > 5
+    ) {
+      const error = new Error("Rating must be an integer between 1 and 5");
+      error.status = 400;
+      throw error;
+    }
+    data.rating = ratingNumber;
+  }
+  if (comment !== undefined) {
+    if (!comment || !comment.trim()) {
+      const error = new Error("Comment is required");
+      error.status = 400;
+      throw error;
+    }
+    data.comment = comment.trim();
+  }
+
+  if (Object.keys(data).length === 0) {
+    const error = new Error("No valid fields to update");
+    error.status = 400;
+    throw error;
+  }
+
   const updatedReview = await prisma.review.update({
     where: { id: reviewId },
-    data: {
-      rating,
-      comment,
-    },
+    data,
   });
   res.status(200).json({
     success: true,
@@ -144,7 +224,6 @@ export const getReviewByReviewId = asyncHandler(async (req, res) => {
     where: { id: reviewId },
     include: {
       user: true,
-      game: true,
     },
   });
   if (!review) {
@@ -152,8 +231,18 @@ export const getReviewByReviewId = asyncHandler(async (req, res) => {
     error.status = 404;
     throw error;
   }
+  let game = null;
+  try {
+    const rawgGame = await fetchRawgGameById(review.gameId);
+    game = mapRawgGameToSummary(rawgGame);
+  } catch (fetchError) {
+    game = null;
+  }
   res.status(200).json({
     success: true,
-    data: review,
+    data: {
+      ...review,
+      game,
+    },
   });
 });

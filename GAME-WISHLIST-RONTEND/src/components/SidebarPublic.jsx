@@ -58,7 +58,7 @@ const SidebarPublic = () => {
             {/* Sidebar Logo */}
             <div className="flex items-center justify-center w-full py-4 border-b border-base-300">
               <div className="flex items-center gap-3 is-drawer-close:justify-center">
-                <div className="bg-gradient-to-br from-gray-700 to-gray-800 p-2 rounded-lg border border-gray-600">
+                <div className="bg-gray-800 p-2 rounded-lg border border-gray-600">
                   <FaGamepad className="text-white text-xl" />
                 </div>
                 <span className="font-bold text-lg is-drawer-close:hidden">
