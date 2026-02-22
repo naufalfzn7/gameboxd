@@ -31,7 +31,24 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-connectDB();
+// Initialize database connection only once
+let dbConnected = false;
+
+const ensureDBConnection = async (req, res, next) => {
+  if (!dbConnected) {
+    try {
+      await connectDB();
+      dbConnected = true;
+    } catch (error) {
+      console.error("Database connection failed:", error);
+      dbConnected = false;
+      return res.status(500).json({ error: "Database connection failed" });
+    }
+  }
+  next();
+};
+
+app.use(ensureDBConnection);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Wishlist Game API");
