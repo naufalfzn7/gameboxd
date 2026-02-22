@@ -29,6 +29,9 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 connectDB();
+app.get("/", (req, res) => {
+  res.send("Welcome to the Wishlist Game API");
+});
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/games", gameRouter);
