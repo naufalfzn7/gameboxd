@@ -1,5 +1,5 @@
 import asyncHandler from "../middlewares/asyncHandler.js";
-import prisma from "../config/db.js";
+import { prisma } from "../config/db.js";
 import { comparePassword, hashPassword } from "../utils/encrypt.js";
 import * as yup from "yup";
 import { generateToken } from "../utils/jwt.js";
@@ -17,7 +17,7 @@ const registerSchema = yup.object({
     .matches(/[0-9]/, "Password must contain at least one number")
     .matches(
       /[@$!%*?&]/,
-      "Password must contain at least one special character"
+      "Password must contain at least one special character",
     ),
   name: yup.string().min(2).max(50).required(),
 });
@@ -80,7 +80,7 @@ export const register = asyncHandler(async (req, res) => {
   sendEmail(
     newUser.email,
     "Activate Your Account",
-    activationEmailTemplate(newUser.name, activationLink)
+    activationEmailTemplate(newUser.name, activationLink),
   );
 
   return res.status(201).json({
@@ -310,6 +310,6 @@ export const changeEmail = asyncHandler(async (req, res) => {
     `<h1>Email Successfully Changed</h1>
      <p>Your email has been updated to ${user.email}.</p>
       <a href="http://localhost:5173/login">Go to Login</a>
-     `
+     `,
   );
 });
