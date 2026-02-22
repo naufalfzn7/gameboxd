@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "build": "prisma generate",
+    "postinstall": "prisma generate",
     "seed:game": "node src/config/seedGame.js",
     "seed:game2": "node src/config/seedGame2.js",
     "seed:wishlist": "node src/config/seedWishlist.js",
