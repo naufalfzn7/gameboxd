@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
-//import Routes
+
 import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
 import gameRouter from "./routes/game.routes.js";
@@ -15,12 +15,14 @@ import favoriteRouter from "./routes/favorite.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // atau domain frontend-mu
+    origin: "*", // sementara biar aman dulu
     credentials: true,
   }),
 );
@@ -28,10 +30,13 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 connectDB();
+
 app.get("/", (req, res) => {
   res.send("Welcome to the Wishlist Game API");
 });
+
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/games", gameRouter);
@@ -39,6 +44,4 @@ app.use("/api/wishlist", wishListRouter);
 app.use("/api/reviews", reviewRouter);
 app.use("/api/favorites", favoriteRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+export default app;
