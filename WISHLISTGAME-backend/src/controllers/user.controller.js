@@ -86,7 +86,8 @@ export const updateCurrentUser = asyncHandler(async (req, res) => {
 
   // Jika email diubah, kirim email aktivasi
   if (emailActivationRequired) {
-    const activationLink = `http://localhost:3000/api/auth/changeEmail/${userId}`;
+    const appUrl = process.env.APP_URL || "https://gameboxd-backend.vercel.app";
+    const activationLink = `${appUrl}/api/auth/changeEmail/${userId}`;
 
     const activationEmailTemplate = (name, activationLink) => `
       <!DOCTYPE html>
@@ -142,11 +143,19 @@ export const updateCurrentUser = asyncHandler(async (req, res) => {
       </html>
     `;
 
-    await sendEmail(
+    // Send email (fire and forget, but log if it fails)
+    sendEmail(
       email,
       "Activate Your New Email",
       activationEmailTemplate(updatedUser.name, activationLink),
-    );
+    ).catch((error) => {
+      console.error(
+        "Failed to send email change verification to",
+        email,
+        ":",
+        error,
+      );
+    });
   }
 
   res.status(200).json({

@@ -107,12 +107,19 @@ export const register = asyncHandler(async (req, res) => {
     </html>
   `;
 
-  // ❗ JANGAN await
+  // Send activation email (fire and forget, but log if it fails)
   sendEmail(
     newUser.email,
     "Activate Your Account",
     activationEmailTemplate(newUser.name, activationLink),
-  );
+  ).catch((error) => {
+    console.error(
+      "Failed to send activation email to",
+      newUser.email,
+      ":",
+      error,
+    );
+  });
 
   return res.status(201).json({
     success: true,
