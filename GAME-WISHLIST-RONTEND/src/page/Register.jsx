@@ -97,7 +97,7 @@ const Register = () => {
               type="email"
               {...register("email")}
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-neutral-300 bg-white px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm 
+              className="w-full rounded-lg border border-neutral-300 bg-white px-3 sm:px-4 py-2 sm:py-3 text-base sm:text-sm 
               text-neutral-900 placeholder-neutral-400 caret-black
               outline-none focus:border-black focus:ring-1 focus:ring-black transition"
             />
@@ -123,7 +123,7 @@ const Register = () => {
               type="text"
               {...register("name")}
               placeholder="John Doe"
-              className="w-full rounded-lg border border-neutral-300 bg-white px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm 
+              className="w-full rounded-lg border border-neutral-300 bg-white px-3 sm:px-4 py-2 sm:py-3 text-base sm:text-sm 
               text-neutral-900 placeholder-neutral-400 caret-black
               outline-none focus:border-black focus:ring-1 focus:ring-black transition"
             />
@@ -150,7 +150,7 @@ const Register = () => {
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 text-xs sm:text-sm 
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 text-base sm:text-sm 
                 text-neutral-900 placeholder-neutral-400 caret-black
                 outline-none focus:border-black focus:ring-1 focus:ring-black transition"
               />
@@ -190,7 +190,7 @@ const Register = () => {
                 type={showConfirmPassword ? "text" : "password"}
                 {...register("confirmPassword")}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 text-xs sm:text-sm 
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 text-base sm:text-sm 
                 text-neutral-900 placeholder-neutral-400 caret-black
                 outline-none focus:border-black focus:ring-1 focus:ring-black transition"
               />
