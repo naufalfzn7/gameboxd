@@ -23,8 +23,15 @@ const buildGameMap = async (gameIds) => {
 export const getAllReviews = asyncHandler(async (req, res) => {
   const reviews = await prisma.review.findMany({
     include: {
-      user: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
+    orderBy: { createdAt: "desc" },
   });
   const gameMap = await buildGameMap(reviews.map((review) => review.gameId));
   const data = reviews.map((review) => ({
@@ -48,7 +55,13 @@ export const getReviewByGameId = asyncHandler(async (req, res) => {
   const reviews = await prisma.review.findMany({
     where: { gameId: parsedGameId },
     include: {
-      user: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -71,8 +84,15 @@ export const getReviewByUserId = asyncHandler(async (req, res) => {
   const reviews = await prisma.review.findMany({
     where: { userId: userId },
     include: {
-      user: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
+    orderBy: { createdAt: "desc" },
   });
   const gameMap = await buildGameMap(reviews.map((review) => review.gameId));
   const data = reviews.map((review) => ({
@@ -223,7 +243,13 @@ export const getReviewByReviewId = asyncHandler(async (req, res) => {
   const review = await prisma.review.findUnique({
     where: { id: reviewId },
     include: {
-      user: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
   });
   if (!review) {

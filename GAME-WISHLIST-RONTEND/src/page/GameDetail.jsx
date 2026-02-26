@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useGetGameByIdQuery } from "../services/gameApi";
@@ -38,6 +38,114 @@ const GameDetail = () => {
   const [editingRating, setEditingRating] = useState(5);
   const [editingComment, setEditingComment] = useState("");
 
+  // Memoize computed values for better performance
+  const game = useMemo(() => data?.data, [data]);
+  const genres = useMemo(() => Array.isArray(game?.genre) ? game.genre : [], [game?.genre]);
+  const displayRating = useMemo(() => typeof game?.rating === "number" ? game.rating : 0, [game?.rating]);
+  
+  const releaseDateText = useMemo(() => {
+    if (!game?.releaseDate) return "Unknown";
+    return new Date(game.releaseDate).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }, [game?.releaseDate]);
+  
+  const updatedDateText = useMemo(() => {
+    if (!game?.rawg?.updated) return "Unknown";
+    return new Date(game.rawg.updated).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }, [game?.rawg?.updated]);
+  
+  const platformNames = useMemo(() => {
+    if (!Array.isArray(game?.platforms)) return "";
+    return game.platforms
+      .map((item) => item?.platform?.name)
+      .filter(Boolean)
+      .join(", ");
+  }, [game?.platforms]);
+
+  // Memoized handlers with useCallback for better performance
+  const handleAddToWishList = useCallback(async () => {
+    try {
+      await addToWishList(gameId).unwrap();
+      Swal.fire(
+        "Success!",
+        `${game.title} has been added to your wishlist.`,
+        "success",
+      );
+    } catch (err) {
+      console.error("Add to wishlist error:", err);
+      const errorMessage =
+        err?.data?.message || err?.message || "Failed to add to wishlist.";
+      Swal.fire("Error!", errorMessage, "error");
+    }
+  }, [addToWishList, gameId, game?.title]);
+
+  const handleAddReview = useCallback(async (event) => {
+    event.preventDefault();
+    try {
+      await addReview({
+        gameId,
+        rating,
+        comment,
+      }).unwrap();
+      setRating(5);
+      setComment("");
+      Swal.fire("Success!", "Review added successfully.", "success");
+    } catch (err) {
+      const errorMessage =
+        err?.data?.message || err?.message || "Failed to add review.";
+      Swal.fire("Error!", errorMessage, "error");
+    }
+  }, [addReview, gameId, rating, comment]);
+
+  const handleStartEdit = useCallback((review) => {
+    setEditingReviewId(review.id);
+    setEditingRating(review.rating);
+    setEditingComment(review.comment);
+  }, []);
+
+  const handleCancelEdit = useCallback(() => {
+    setEditingReviewId(null);
+    setEditingRating(5);
+    setEditingComment("");
+  }, []);
+
+  const handleUpdateReview = useCallback(async (event) => {
+    event.preventDefault();
+    try {
+      await updateReview({
+        reviewId: editingReviewId,
+        rating: editingRating,
+        comment: editingComment,
+        gameId,
+      }).unwrap();
+      handleCancelEdit();
+      Swal.fire("Success!", "Review updated successfully.", "success");
+    } catch (err) {
+      const errorMessage =
+        err?.data?.message || err?.message || "Failed to update review.";
+      Swal.fire("Error!", errorMessage, "error");
+    }
+  }, [updateReview, editingReviewId, editingRating, editingComment, gameId, handleCancelEdit]);
+
+  const handleDeleteReview = useCallback(async (reviewId) => {
+    try {
+      await deleteReview({ reviewId, gameId }).unwrap();
+      Swal.fire("Deleted!", "Review deleted successfully.", "success");
+    } catch (err) {
+      const errorMessage =
+        err?.data?.message || err?.message || "Failed to delete review.";
+      Swal.fire("Error!", errorMessage, "error");
+    }
+  }, [deleteReview, gameId]);
+
+  // Early returns for loading/error states  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900">
@@ -66,105 +174,6 @@ const GameDetail = () => {
       </div>
     );
   }
-
-  const game = data?.data;
-  const genres = Array.isArray(game?.genre) ? game.genre : [];
-  const displayRating = typeof game?.rating === "number" ? game.rating : 0;
-  const releaseDateText = game?.releaseDate
-    ? new Date(game.releaseDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "Unknown";
-  const updatedDateText = game?.rawg?.updated
-    ? new Date(game.rawg.updated).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "Unknown";
-  const platformNames = Array.isArray(game?.platforms)
-    ? game.platforms
-        .map((item) => item?.platform?.name)
-        .filter(Boolean)
-        .join(", ")
-    : "";
-
-  const handleAddToWishList = async () => {
-    try {
-      await addToWishList(gameId).unwrap();
-      Swal.fire(
-        "Success!",
-        `${game.title} has been added to your wishlist.`,
-        "success",
-      );
-    } catch (err) {
-      console.error("Add to wishlist error:", err);
-      const errorMessage =
-        err?.data?.message || err?.message || "Failed to add to wishlist.";
-      Swal.fire("Error!", errorMessage, "error");
-    }
-  };
-
-  const handleAddReview = async (event) => {
-    event.preventDefault();
-    try {
-      await addReview({
-        gameId,
-        rating,
-        comment,
-      }).unwrap();
-      setRating(5);
-      setComment("");
-      Swal.fire("Success!", "Review added successfully.", "success");
-    } catch (err) {
-      const errorMessage =
-        err?.data?.message || err?.message || "Failed to add review.";
-      Swal.fire("Error!", errorMessage, "error");
-    }
-  };
-
-  const handleStartEdit = (review) => {
-    setEditingReviewId(review.id);
-    setEditingRating(review.rating);
-    setEditingComment(review.comment);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingReviewId(null);
-    setEditingRating(5);
-    setEditingComment("");
-  };
-
-  const handleUpdateReview = async (event) => {
-    event.preventDefault();
-    try {
-      await updateReview({
-        reviewId: editingReviewId,
-        rating: editingRating,
-        comment: editingComment,
-        gameId,
-      }).unwrap();
-      handleCancelEdit();
-      Swal.fire("Success!", "Review updated successfully.", "success");
-    } catch (err) {
-      const errorMessage =
-        err?.data?.message || err?.message || "Failed to update review.";
-      Swal.fire("Error!", errorMessage, "error");
-    }
-  };
-
-  const handleDeleteReview = async (reviewId) => {
-    try {
-      await deleteReview({ reviewId, gameId }).unwrap();
-      Swal.fire("Deleted!", "Review deleted successfully.", "success");
-    } catch (err) {
-      const errorMessage =
-        err?.data?.message || err?.message || "Failed to delete review.";
-      Swal.fire("Error!", errorMessage, "error");
-    }
-  };
 
   if (!game) {
     return (

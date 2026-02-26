@@ -26,10 +26,12 @@ const gameApi = createApi({
         return `/?${params.toString()}`; // GET /api/games/?page=1&limit=10&search=...
       },
       providesTags: ["game"],
+      keepUnusedDataFor: 300, // Cache for 5 minutes
     }),
     getGameById: builder.query({
       query: (id) => `/${id}`, // GET /api/games/:id
       providesTags: (result, error, id) => [{ type: "game", id }],
+      keepUnusedDataFor: 600, // Cache game details for 10 minutes (longer since they change less frequently)
     }),
   }),
 });
