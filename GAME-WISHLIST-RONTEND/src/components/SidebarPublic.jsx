@@ -39,7 +39,7 @@ const SidebarPublic = () => {
             </label>
             <div className="flex items-center gap-2 px-4 font-semibold">
               <FaGamepad className="text-xl text-gray-300" />
-              <span>Game Wishlist</span>
+              <span>Gamebox'd</span>
             </div>
           </nav>
           {/* Page content here */}
@@ -62,7 +62,7 @@ const SidebarPublic = () => {
                   <FaGamepad className="text-white text-xl" />
                 </div>
                 <span className="font-bold text-lg is-drawer-close:hidden">
-                  Game Wishlist
+                  Gamebox'd
                 </span>
               </div>
             </div>

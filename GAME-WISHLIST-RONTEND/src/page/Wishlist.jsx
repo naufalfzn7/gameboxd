@@ -131,12 +131,14 @@ const Wishlist = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-lg text-red-600 mb-4">Error loading wishlist</p>
+      <div className="flex items-center justify-center min-h-screen bg-neutral-100 px-4">
+        <div className="bg-white rounded-xl shadow-lg border border-neutral-200 p-8 text-center max-w-sm">
+          <p className="text-base sm:text-lg text-red-600 mb-6 font-semibold">
+            Error loading wishlist
+          </p>
           <button
             onClick={() => navigate("/gamelist")}
-            className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors border border-gray-700"
+            className="w-full px-6 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:opacity-90 active:scale-95 transition font-semibold text-sm sm:text-base border border-black"
           >
             Go to Game List
           </button>
@@ -146,23 +148,27 @@ const Wishlist = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-neutral-100 px-4 py-8 sm:px-6 lg:px-8">
       <LoadingOverlay isLoading={!!loadingMessage} message={loadingMessage} />
       <div className="max-w-7xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-black mb-2">My Wishlist</h1>
-          <p className="text-gray-600">
+        <header className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-neutral-900 mb-2">
+            My Wishlist
+          </h1>
+          <p className="text-xs sm:text-sm text-neutral-600">
             {wishlistItems.length} game{wishlistItems.length !== 1 ? "s" : ""}{" "}
             in your wishlist
           </p>
         </header>
 
         {wishlistItems.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-lg text-gray-600 mb-6">Your wishlist is empty</p>
+          <div className="text-center py-12 sm:py-16">
+            <p className="text-sm sm:text-base text-neutral-600 mb-6 sm:mb-8">
+              Your wishlist is empty
+            </p>
             <button
               onClick={() => navigate("/gamelist")}
-              className="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-semibold border border-gray-700"
+              className="px-6 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:opacity-90 active:scale-95 transition font-semibold text-sm sm:text-base border border-black"
             >
               Explore Games
             </button>
@@ -172,7 +178,7 @@ const Wishlist = () => {
             {wishlistItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                className="bg-white border border-neutral-200 rounded-lg sm:rounded-2xl overflow-hidden hover:shadow-xl transition-shadow duration-300 shadow-lg"
               >
                 {(() => {
                   const game = item.game;
@@ -185,11 +191,11 @@ const Wishlist = () => {
                       })
                     : "Unknown";
                   return (
-                    <div className="flex flex-col sm:flex-row gap-6 p-6">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 sm:p-6">
                       {/* Game Image */}
                       <div
                         onClick={() => hasGame && handleGameClick(game.id)}
-                        className={`flex-shrink-0 w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-200 ${
+                        className={`flex-shrink-0 w-full sm:w-40 md:w-48 h-40 sm:h-48 rounded-lg overflow-hidden bg-neutral-200 ${
                           hasGame ? "cursor-pointer group" : "cursor-default"
                         }`}
                       >
@@ -209,9 +215,9 @@ const Wishlist = () => {
                         <div>
                           <h2
                             onClick={() => hasGame && handleGameClick(game.id)}
-                            className={`text-2xl font-bold text-black mb-2 ${
+                            className={`text-lg sm:text-2xl font-bold text-neutral-900 mb-2 break-words ${
                               hasGame
-                                ? "cursor-pointer hover:text-gray-600 transition-colors"
+                                ? "cursor-pointer hover:text-neutral-600 transition-colors"
                                 : "cursor-default"
                             }`}
                           >
@@ -224,22 +230,22 @@ const Wishlist = () => {
                               game.genre.map((g, idx) => (
                                 <span
                                   key={idx}
-                                  className="inline-block px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full"
+                                  className="inline-block px-2 sm:px-3 py-1 text-xs font-semibold bg-neutral-100 text-neutral-700 rounded-full"
                                 >
                                   {g}
                                 </span>
                               ))
                             ) : (
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-neutral-500">
                                 No genre
                               </span>
                             )}
                           </div>
 
                           {/* Game Info */}
-                          <div className="space-y-1 text-sm text-gray-600">
+                          <div className="space-y-1 text-xs sm:text-sm text-neutral-600">
                             <p>
-                              <span className="font-semibold text-black">
+                              <span className="font-semibold text-neutral-900">
                                 Rating:
                               </span>{" "}
                               {typeof game?.rating === "number"
@@ -247,7 +253,7 @@ const Wishlist = () => {
                                 : "Unknown"}
                             </p>
                             <p>
-                              <span className="font-semibold text-black">
+                              <span className="font-semibold text-neutral-900">
                                 Released:
                               </span>{" "}
                               {releaseDateText}
@@ -264,11 +270,13 @@ const Wishlist = () => {
                               const Icon = config.icon;
                               return (
                                 <div
-                                  className={`flex items-center gap-2 px-4 py-2 ${config.bgColor} rounded-lg`}
+                                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 ${config.bgColor} rounded-lg`}
                                 >
-                                  <Icon className={config.textColor} />
+                                  <Icon
+                                    className={`${config.textColor} text-sm sm:text-base`}
+                                  />
                                   <span
-                                    className={`text-sm font-semibold ${config.textColor}`}
+                                    className={`text-xs sm:text-sm font-semibold ${config.textColor}`}
                                   >
                                     {config.label}
                                   </span>
@@ -289,10 +297,10 @@ const Wishlist = () => {
                                 )
                               }
                               disabled={isUpdating || processingId === item.id}
-                              className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg transition-colors font-medium text-sm border ${
+                              className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-colors font-medium text-xs sm:text-sm border ${
                                 isUpdating || processingId === item.id
-                                  ? "bg-gray-600 text-gray-300 border-gray-500 cursor-not-allowed"
-                                  : "bg-gray-800 text-white border-gray-700 hover:bg-gray-900"
+                                  ? "bg-neutral-300 text-neutral-600 border-neutral-400 cursor-not-allowed"
+                                  : "bg-black text-white border-black hover:opacity-90 active:scale-95"
                               }`}
                             >
                               {processingId === item.id && isUpdating ? (
@@ -311,13 +319,13 @@ const Wishlist = () => {
                                 )
                               }
                               disabled={isRemoving || processingId === item.id}
-                              className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2 ${
+                              className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-colors font-medium text-xs sm:text-sm flex items-center justify-center gap-2 ${
                                 isRemoving || processingId === item.id
-                                  ? "bg-red-400 text-red-100 cursor-not-allowed"
-                                  : "bg-red-600 text-white hover:bg-red-700"
+                                  ? "bg-red-200 text-red-600 cursor-not-allowed"
+                                  : "bg-red-600 text-white hover:opacity-90 active:scale-95"
                               }`}
                             >
-                              <FaTrash className="text-sm" />
+                              <FaTrash className="text-xs sm:text-sm" />
                               <span>
                                 {processingId === item.id && isRemoving
                                   ? "Removing..."

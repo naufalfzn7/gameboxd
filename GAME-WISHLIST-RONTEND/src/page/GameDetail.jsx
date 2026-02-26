@@ -197,14 +197,14 @@ const GameDetail = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
-        <div className="text-center">
-          <p className="text-xl text-red-400 mb-4">
+      <div className="flex items-center justify-center min-h-screen bg-neutral-100 px-4">
+        <div className="bg-white rounded-xl shadow-lg border border-neutral-200 p-8 text-center max-w-sm">
+          <p className="text-base sm:text-lg text-red-600 mb-6 font-semibold">
             Error loading game details
           </p>
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors border border-gray-700"
+            className="w-full px-6 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:opacity-90 active:scale-95 transition font-semibold text-sm sm:text-base border border-black"
           >
             Go Back
           </button>
@@ -215,12 +215,14 @@ const GameDetail = () => {
 
   if (!game) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
-        <div className="text-center">
-          <p className="text-xl text-gray-300 mb-4">Game not found</p>
+      <div className="flex items-center justify-center min-h-screen bg-neutral-100 px-4">
+        <div className="bg-white rounded-xl shadow-lg border border-neutral-200 p-8 text-center max-w-sm">
+          <p className="text-base sm:text-lg text-neutral-600 mb-6 font-semibold">
+            Game not found
+          </p>
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors border border-gray-700"
+            className="w-full px-6 py-2.5 sm:py-3 bg-black text-white rounded-lg hover:opacity-90 active:scale-95 transition font-semibold text-sm sm:text-base border border-black"
           >
             Go Back
           </button>
@@ -230,13 +232,13 @@ const GameDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-neutral-100">
       <LoadingOverlay isLoading={!!loadingMessage} message={loadingMessage} />
       {/* Back Button */}
-      <div className="max-w-7xl mx-auto px-6 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors group"
+          className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors group"
         >
           <svg
             className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform"
@@ -256,11 +258,11 @@ const GameDetail = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {/* Left Side - Image */}
           <div className="relative">
-            <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+            <div className="relative overflow-hidden rounded-lg sm:rounded-2xl shadow-lg sm:shadow-2xl">
               <img
                 src={game.urlPicture || "/images/game.jpg"}
                 alt={game.title}
@@ -270,10 +272,12 @@ const GameDetail = () => {
             </div>
 
             {/* Rating Card */}
-            <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-md rounded-xl p-4 border border-gray-700">
+            <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md rounded-lg sm:rounded-xl p-4 border border-neutral-200 shadow-lg">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-sm text-gray-400 mb-1">User Rating</p>
+                  <p className="text-xs sm:text-sm text-neutral-600 mb-1">
+                    User Rating
+                  </p>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
@@ -282,7 +286,7 @@ const GameDetail = () => {
                           className={`w-5 h-5 ${
                             i < Math.round(displayRating)
                               ? "text-yellow-400"
-                              : "text-gray-600"
+                              : "text-neutral-300"
                           }`}
                           fill="currentColor"
                           viewBox="0 0 20 20"
@@ -291,12 +295,14 @@ const GameDetail = () => {
                         </svg>
                       ))}
                     </div>
-                    <span className="text-2xl font-bold text-white">
+                    <span className="text-lg sm:text-2xl font-bold text-neutral-900">
                       {displayRating.toFixed(1)}
                     </span>
-                    <span className="text-gray-400">/ 5.0</span>
+                    <span className="text-xs sm:text-sm text-neutral-500">
+                      / 5.0
+                    </span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-neutral-500 mt-1">
                     {game?.reviewCount > 0
                       ? `Based on ${game.reviewCount} user review${game.reviewCount !== 1 ? "s" : ""}`
                       : "No user reviews yet"}
@@ -310,7 +316,7 @@ const GameDetail = () => {
           <div className="flex flex-col">
             {/* Title Section */}
             <div className="mb-6">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-neutral-900 mb-4 leading-tight">
                 {game.title}
               </h1>
               <div className="flex flex-wrap gap-2 mb-4">
@@ -318,13 +324,13 @@ const GameDetail = () => {
                   genres.map((g, idx) => (
                     <span
                       key={idx}
-                      className="px-4 py-2 bg-gray-800 text-white text-sm font-semibold rounded-full shadow-lg border border-gray-700 hover:bg-gray-900 transition-colors"
+                      className="px-3 sm:px-4 py-2 bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-semibold rounded-full shadow-md border border-neutral-300 hover:bg-neutral-300 transition-colors"
                     >
                       {g}
                     </span>
                   ))
                 ) : (
-                  <span className="px-4 py-2 bg-gray-800 text-white text-sm font-semibold rounded-full shadow-lg border border-gray-700">
+                  <span className="px-3 sm:px-4 py-2 bg-neutral-200 text-neutral-900 text-xs sm:text-sm font-semibold rounded-full shadow-md border border-neutral-300">
                     Unknown genre
                   </span>
                 )}
@@ -333,9 +339,9 @@ const GameDetail = () => {
 
             {/* Description */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-white mb-3 flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-semibold text-neutral-900 mb-3 flex items-center gap-2">
                 <svg
-                  className="w-6 h-6 text-gray-400"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -349,18 +355,18 @@ const GameDetail = () => {
                 </svg>
                 About This Game
               </h2>
-              <p className="text-gray-300 text-lg leading-relaxed">
+              <p className="text-neutral-700 text-base sm:text-lg leading-relaxed">
                 {game.description || "No description available."}
               </p>
             </div>
 
             {/* Info Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               {/* Platforms */}
-              <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700">
+              <div className="bg-white rounded-lg p-4 sm:p-5 border border-neutral-200 shadow-md">
                 <div className="flex items-center gap-3 mb-2">
                   <svg
-                    className="w-5 h-5 text-gray-400"
+                    className="w-5 h-5 text-neutral-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -372,20 +378,20 @@ const GameDetail = () => {
                       d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                     />
                   </svg>
-                  <p className="text-sm text-gray-400 uppercase tracking-wider">
+                  <p className="text-xs sm:text-sm text-neutral-600 uppercase tracking-wider font-semibold">
                     Platforms
                   </p>
                 </div>
-                <p className="text-white text-lg font-semibold">
+                <p className="text-neutral-900 text-base sm:text-lg font-semibold">
                   {platformNames || "Unknown"}
                 </p>
               </div>
 
               {/* ESRB */}
-              <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700">
+              <div className="bg-white rounded-lg p-4 sm:p-5 border border-neutral-200 shadow-md">
                 <div className="flex items-center gap-3 mb-2">
                   <svg
-                    className="w-5 h-5 text-gray-400"
+                    className="w-5 h-5 text-neutral-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -397,20 +403,20 @@ const GameDetail = () => {
                       d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                     />
                   </svg>
-                  <p className="text-sm text-gray-400 uppercase tracking-wider">
+                  <p className="text-xs sm:text-sm text-neutral-600 uppercase tracking-wider font-semibold">
                     ESRB Rating
                   </p>
                 </div>
-                <p className="text-white text-lg font-semibold">
+                <p className="text-neutral-900 text-base sm:text-lg font-semibold">
                   {game?.esrbRating?.name || "Not rated"}
                 </p>
               </div>
 
               {/* Release Date */}
-              <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700">
+              <div className="bg-white rounded-lg p-4 sm:p-5 border border-neutral-200 shadow-md">
                 <div className="flex items-center gap-3 mb-2">
                   <svg
-                    className="w-5 h-5 text-gray-400"
+                    className="w-5 h-5 text-neutral-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -422,20 +428,20 @@ const GameDetail = () => {
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <p className="text-sm text-gray-400 uppercase tracking-wider">
+                  <p className="text-xs sm:text-sm text-neutral-600 uppercase tracking-wider font-semibold">
                     Release Date
                   </p>
                 </div>
-                <p className="text-white text-lg font-semibold">
+                <p className="text-neutral-900 text-base sm:text-lg font-semibold">
                   {releaseDateText}
                 </p>
               </div>
 
               {/* Last Updated */}
-              <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700">
+              <div className="bg-white rounded-lg p-4 sm:p-5 border border-neutral-200 shadow-md">
                 <div className="flex items-center gap-3 mb-2">
                   <svg
-                    className="w-5 h-5 text-gray-400"
+                    className="w-5 h-5 text-neutral-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -447,11 +453,11 @@ const GameDetail = () => {
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <p className="text-sm text-gray-400 uppercase tracking-wider">
+                  <p className="text-xs sm:text-sm text-neutral-600 uppercase tracking-wider font-semibold">
                     Last Updated
                   </p>
                 </div>
-                <p className="text-white text-lg font-semibold">
+                <p className="text-neutral-900 text-base sm:text-lg font-semibold">
                   {updatedDateText}
                 </p>
               </div>
@@ -462,7 +468,7 @@ const GameDetail = () => {
               <button
                 onClick={handleAddToWishList}
                 disabled={isAdding}
-                className="flex-1 bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600"
+                className="flex-1 bg-black hover:opacity-90 active:scale-95 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-black text-sm sm:text-base"
               >
                 {isAdding ? "Adding..." : "Add to Wishlist"}
               </button>
@@ -472,20 +478,25 @@ const GameDetail = () => {
 
         {/* Reviews */}
         <div className="mt-12">
-          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">Reviews</h2>
+          <div className="bg-white border border-neutral-200 rounded-lg sm:rounded-2xl p-6 sm:p-8 shadow-lg">
+            <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-6">
+              Reviews
+            </h2>
 
             {!token && (
-              <p className="text-gray-400 mb-6">
+              <p className="text-neutral-600 mb-6 text-sm sm:text-base">
                 Login terlebih dahulu untuk menambahkan review.
               </p>
             )}
 
             {token && (
-              <form onSubmit={handleAddReview} className="mb-8">
+              <form
+                onSubmit={handleAddReview}
+                className="mb-8 p-4 sm:p-6 bg-neutral-50 border border-neutral-200 rounded-lg"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-2">
+                    <label className="block text-xs sm:text-sm text-neutral-700 mb-2 font-semibold">
                       Rating
                     </label>
                     <select
@@ -493,7 +504,7 @@ const GameDetail = () => {
                       onChange={(event) =>
                         setRating(Number(event.target.value))
                       }
-                      className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2"
+                      className="w-full bg-white text-neutral-900 border border-neutral-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:border-black focus:ring-1 focus:ring-black outline-none"
                     >
                       {[1, 2, 3, 4, 5].map((value) => (
                         <option key={value} value={value}>
@@ -503,13 +514,13 @@ const GameDetail = () => {
                     </select>
                   </div>
                   <div className="md:col-span-1">
-                    <label className="block text-sm text-gray-400 mb-2">
+                    <label className="block text-xs sm:text-sm text-neutral-700 mb-2 font-semibold">
                       Comment
                     </label>
                     <textarea
                       value={comment}
                       onChange={(event) => setComment(event.target.value)}
-                      className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2 h-24"
+                      className="w-full bg-white text-neutral-900 border border-neutral-300 rounded-lg px-3 py-2 h-24 text-xs sm:text-sm focus:border-black focus:ring-1 focus:ring-black outline-none"
                       placeholder="Tulis review kamu..."
                       maxLength={500}
                     />
@@ -518,7 +529,7 @@ const GameDetail = () => {
                 <button
                   type="submit"
                   disabled={isAddingReview}
-                  className="mt-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg disabled:opacity-50"
+                  className="mt-4 bg-black hover:opacity-90 active:scale-95 text-white font-semibold px-6 py-2.5 sm:py-3 rounded-lg shadow-md disabled:opacity-50 text-xs sm:text-sm border border-black"
                 >
                   {isAddingReview ? "Submitting..." : "Submit Review"}
                 </button>
@@ -526,30 +537,30 @@ const GameDetail = () => {
             )}
 
             {reviewsLoading && (
-              <p className="text-gray-400">Loading reviews...</p>
+              <p className="text-neutral-500">Loading reviews...</p>
             )}
 
             {reviewsError && (
-              <p className="text-red-400">Gagal memuat review.</p>
+              <p className="text-red-600">Gagal memuat review.</p>
             )}
 
             {!reviewsLoading && !reviewsError && (
               <div className="space-y-4">
                 {reviewsData?.data?.length === 0 && (
-                  <p className="text-gray-400">Belum ada review.</p>
+                  <p className="text-neutral-500">Belum ada review.</p>
                 )}
 
                 {reviewsData?.data?.map((review) => (
                   <div
                     key={review.id}
-                    className="bg-gray-800/60 border border-gray-700 rounded-xl p-4"
+                    className="bg-neutral-50 border border-neutral-200 rounded-lg p-4 sm:p-5"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-white font-semibold">
+                        <p className="text-neutral-900 font-semibold">
                           {review.user?.name || review.user?.email || "User"}
                         </p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-xs sm:text-sm text-neutral-500">
                           {new Date(review.createdAt).toLocaleDateString(
                             "en-US",
                             {
@@ -569,7 +580,7 @@ const GameDetail = () => {
                       <form onSubmit={handleUpdateReview} className="mt-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm text-gray-400 mb-2">
+                            <label className="block text-xs sm:text-sm text-neutral-700 mb-2 font-semibold">
                               Rating
                             </label>
                             <select
@@ -577,7 +588,7 @@ const GameDetail = () => {
                               onChange={(event) =>
                                 setEditingRating(Number(event.target.value))
                               }
-                              className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2"
+                              className="w-full bg-white text-neutral-900 border border-neutral-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:border-black focus:ring-1 focus:ring-black outline-none"
                             >
                               {[1, 2, 3, 4, 5].map((value) => (
                                 <option key={value} value={value}>
@@ -587,7 +598,7 @@ const GameDetail = () => {
                             </select>
                           </div>
                           <div>
-                            <label className="block text-sm text-gray-400 mb-2">
+                            <label className="block text-xs sm:text-sm text-neutral-700 mb-2 font-semibold">
                               Comment
                             </label>
                             <textarea
@@ -595,7 +606,7 @@ const GameDetail = () => {
                               onChange={(event) =>
                                 setEditingComment(event.target.value)
                               }
-                              className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-3 py-2 h-24"
+                              className="w-full bg-white text-neutral-900 border border-neutral-300 rounded-lg px-3 py-2 h-24 text-xs sm:text-sm focus:border-black focus:ring-1 focus:ring-black outline-none"
                               maxLength={500}
                             />
                           </div>
@@ -607,7 +618,7 @@ const GameDetail = () => {
                               isUpdatingReview ||
                               processingReviewId === editingReviewId
                             }
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
+                            className="bg-black hover:opacity-90 active:scale-95 text-white font-semibold px-4 py-2 rounded-lg disabled:opacity-50 text-xs sm:text-sm border border-black"
                           >
                             {isUpdatingReview ||
                             processingReviewId === editingReviewId
@@ -621,14 +632,16 @@ const GameDetail = () => {
                               isUpdatingReview ||
                               processingReviewId === editingReviewId
                             }
-                            className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
+                            className="bg-neutral-200 hover:bg-neutral-300 text-neutral-900 font-semibold px-4 py-2 rounded-lg disabled:opacity-50 text-xs sm:text-sm"
                           >
                             Cancel
                           </button>
                         </div>
                       </form>
                     ) : (
-                      <p className="text-gray-300 mt-3">{review.comment}</p>
+                      <p className="text-neutral-700 text-sm sm:text-base mt-3">
+                        {review.comment}
+                      </p>
                     )}
 
                     {review.userId === meId &&
@@ -641,7 +654,7 @@ const GameDetail = () => {
                               isDeletingReview ||
                               processingReviewId === review.id
                             }
-                            className="text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="text-neutral-700 hover:text-neutral-900 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Edit
                           </button>
@@ -652,7 +665,7 @@ const GameDetail = () => {
                               isDeletingReview ||
                               processingReviewId === review.id
                             }
-                            className="text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="text-red-600 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {processingReviewId === review.id
                               ? "Deleting..."
