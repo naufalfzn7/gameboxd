@@ -8,9 +8,14 @@ const SidebarPublic = () => {
     `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
       isActive ? "bg-black text-white" : "text-neutral-700 hover:bg-neutral-100"
     }`;
+
+  const handleNavClick = () => {
+    // Close sidebar on mobile after clicking nav link
+    setIsOpen(false);
+  };
   return (
-    <div className="min-h-screen bg-neutral-100">
-      <div className="flex min-h-screen">
+    <div className="h-screen bg-neutral-100 overflow-hidden">
+      <div className="flex h-full">
         <div
           className={`fixed inset-0 z-30 bg-black/40 transition-opacity md:hidden ${
             isOpen ? "opacity-100" : "pointer-events-none opacity-0"
@@ -20,11 +25,11 @@ const SidebarPublic = () => {
         />
 
         <aside
-          className={`fixed left-0 top-0 z-40 h-screen w-64 bg-white border-r border-neutral-200 transform transition-transform md:static md:translate-x-0 ${
+          className={`fixed left-0 top-0 z-40 h-screen w-64 bg-white border-r border-neutral-200 transform transition-transform md:static md:translate-x-0 flex flex-col ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-neutral-200">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-neutral-200 flex-shrink-0">
             <div className="w-10 h-10 rounded-lg bg-black flex items-center justify-center">
               <FaGamepad className="text-white text-lg" />
             </div>
@@ -33,24 +38,32 @@ const SidebarPublic = () => {
             </span>
           </div>
 
-          <nav className="px-3 py-4 space-y-1">
-            <NavLink to="/" className={navLinkClass}>
+          <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1 scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
+            <NavLink to="/" className={navLinkClass} onClick={handleNavClick}>
               <FaHome className="text-lg" />
               <span>Home</span>
             </NavLink>
-            <NavLink to="/login" className={navLinkClass}>
+            <NavLink
+              to="/login"
+              className={navLinkClass}
+              onClick={handleNavClick}
+            >
               <FaSignInAlt className="text-lg" />
               <span>Login</span>
             </NavLink>
-            <NavLink to="/register" className={navLinkClass}>
+            <NavLink
+              to="/register"
+              className={navLinkClass}
+              onClick={handleNavClick}
+            >
               <FaUserPlus className="text-lg" />
               <span>Register</span>
             </NavLink>
           </nav>
         </aside>
 
-        <div className="flex-1 min-w-0">
-          <header className="sticky top-0 z-20 flex items-center gap-3 bg-white border-b border-neutral-200 px-4 py-3">
+        <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
+          <header className="flex-shrink-0 flex items-center gap-3 bg-white border-b border-neutral-200 px-4 py-3">
             <button
               type="button"
               onClick={() => setIsOpen(true)}
@@ -80,7 +93,7 @@ const SidebarPublic = () => {
             </div>
           </header>
 
-          <main className="p-2 sm:p-4">
+          <main className="flex-1 overflow-y-auto p-2 sm:p-4">
             <Outlet />
           </main>
         </div>
