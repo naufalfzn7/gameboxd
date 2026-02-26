@@ -1,31 +1,62 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import {
-  FaGamepad,
-  FaHome,
-  FaUser,
-  FaSignInAlt,
-  FaUserPlus,
-} from "react-icons/fa";
+import { FaGamepad, FaHome, FaSignInAlt, FaUserPlus } from "react-icons/fa";
 
 const SidebarPublic = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const navLinkClass = ({ isActive }) =>
     `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
       isActive ? "bg-black text-white" : "text-neutral-700 hover:bg-neutral-100"
     }`;
   return (
-    <div>
-      <div className="drawer lg:drawer-open">
-        <input id="drawer-public" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content">
-          {/* Navbar */}
-          <nav className="navbar w-full bg-white sticky top-0 z-10 border-b border-neutral-200">
-            <label
-              htmlFor="drawer-public"
-              aria-label="open sidebar"
-              className="btn btn-square btn-ghost text-neutral-700"
+    <div className="min-h-screen bg-neutral-100">
+      <div className="flex min-h-screen">
+        <div
+          className={`fixed inset-0 z-30 bg-black/40 transition-opacity md:hidden ${
+            isOpen ? "opacity-100" : "pointer-events-none opacity-0"
+          }`}
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+
+        <aside
+          className={`fixed left-0 top-0 z-40 h-screen w-64 bg-white border-r border-neutral-200 transform transition-transform md:static md:translate-x-0 ${
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-neutral-200">
+            <div className="w-10 h-10 rounded-lg bg-black flex items-center justify-center">
+              <FaGamepad className="text-white text-lg" />
+            </div>
+            <span className="text-lg font-bold text-neutral-900">
+              Gamebox'd
+            </span>
+          </div>
+
+          <nav className="px-3 py-4 space-y-1">
+            <NavLink to="/" className={navLinkClass}>
+              <FaHome className="text-lg" />
+              <span>Home</span>
+            </NavLink>
+            <NavLink to="/login" className={navLinkClass}>
+              <FaSignInAlt className="text-lg" />
+              <span>Login</span>
+            </NavLink>
+            <NavLink to="/register" className={navLinkClass}>
+              <FaUserPlus className="text-lg" />
+              <span>Register</span>
+            </NavLink>
+          </nav>
+        </aside>
+
+        <div className="flex-1 min-w-0">
+          <header className="sticky top-0 z-20 flex items-center gap-3 bg-white border-b border-neutral-200 px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="md:hidden inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-700 hover:bg-neutral-50"
+              aria-label="Open sidebar"
             >
-              {/* Sidebar toggle icon */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -34,66 +65,24 @@ const SidebarPublic = () => {
                 strokeWidth="2"
                 fill="none"
                 stroke="currentColor"
-                className="my-1.5 inline-block size-4"
+                className="size-4"
               >
-                <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                <path d="M9 4v16"></path>
-                <path d="M14 10l2 2l-2 2"></path>
+                <path d="M4 6h16"></path>
+                <path d="M4 12h16"></path>
+                <path d="M4 18h16"></path>
               </svg>
-            </label>
-            <div className="flex items-center gap-2 px-4 font-semibold">
-              <div className="w-9 h-9 rounded-lg bg-black flex items-center justify-center">
-                <FaGamepad className="text-white text-lg" />
+            </button>
+            <div className="flex items-center gap-2 font-semibold text-neutral-900">
+              <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center">
+                <FaGamepad className="text-white text-sm" />
               </div>
-              <span className="text-neutral-900">Gamebox'd</span>
+              <span>Gamebox'd</span>
             </div>
-          </nav>
-          {/* Page content here */}
-          <div className="p-2 sm:p-4 bg-neutral-100 min-h-[calc(100vh-64px)]">
-            <Outlet />
-          </div>
-        </div>
+          </header>
 
-        <div className="drawer-side is-drawer-close:overflow-visible sticky top-0 h-screen">
-          <label
-            htmlFor="drawer-public"
-            aria-label="close sidebar"
-            className="drawer-overlay"
-          ></label>
-          <div className="flex min-h-full flex-col items-start bg-white is-drawer-close:w-14 is-drawer-open:w-64 sticky top-0 border-r border-neutral-200">
-            {/* Sidebar Logo */}
-            <div className="flex items-center justify-center w-full py-4 border-b border-neutral-200">
-              <div className="flex items-center gap-3 is-drawer-close:justify-center">
-                <div className="bg-black p-2 rounded-lg">
-                  <FaGamepad className="text-white text-xl" />
-                </div>
-                <span className="font-bold text-lg text-neutral-900 is-drawer-close:hidden">
-                  Gamebox'd
-                </span>
-              </div>
-            </div>
-            {/* Sidebar content here */}
-            <ul className="w-full grow space-y-1 px-2 py-4">
-              <li>
-                <NavLink to="/" className={navLinkClass}>
-                  <FaHome className="text-lg" />
-                  <span className="is-drawer-close:hidden">Home</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/login" className={navLinkClass}>
-                  <FaSignInAlt className="text-lg" />
-                  <span className="is-drawer-close:hidden">Login</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/register" className={navLinkClass}>
-                  <FaUserPlus className="text-lg" />
-                  <span className="is-drawer-close:hidden">Register</span>
-                </NavLink>
-              </li>
-            </ul>
-          </div>
+          <main className="p-2 sm:p-4">
+            <Outlet />
+          </main>
         </div>
       </div>
     </div>
