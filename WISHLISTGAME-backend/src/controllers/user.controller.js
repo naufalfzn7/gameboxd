@@ -39,7 +39,7 @@ const userUpdateSchema = yup.object({
     .matches(/[0-9]/, "Password must contain at least one number")
     .matches(
       /[@$!%*?&]/,
-      "Password must contain at least one special character"
+      "Password must contain at least one special character",
     )
     .optional(),
 });
@@ -89,65 +89,63 @@ export const updateCurrentUser = asyncHandler(async (req, res) => {
     const activationLink = `http://localhost:3000/api/auth/changeEmail/${userId}`;
 
     const activationEmailTemplate = (name, activationLink) => `
-      <div style="font-family: Arial, sans-serif; background-color:#f7f7f7; padding:20px;">
-        <div style="
-          max-width:600px;
-          margin:auto;
-          background:#ffffff;
-          border-radius:10px;
-          padding:30px;
-          box-shadow:0 4px 12px rgba(0,0,0,0.1);
-        ">
-          <h2 style="color:#333; text-align:center; margin-bottom:20px;">
-            Activate Your New Email 🎉
-          </h2>
-          <p style="color:#444; font-size:16px;">
-            Hi <strong>${name}</strong>,<br><br>
-            You updated your email. Please verify it by clicking the button below.
-          </p>
-          <div style="text-align:center; margin:30px 0;">
-            <a href="${activationLink}" 
-              style="
-                background:#4f46e5;
-                color:white;
-                padding:14px 28px;
-                border-radius:8px;
-                text-decoration:none;
-                font-size:16px;
-                display:inline-block;
-              ">
-              Activate Email
-            </a>
-            <p>
-              jika anda tidak mengubah email, abaikan email ini.
-            </p>
-          </div>
-          <p style="color:#666; font-size:14px;">
-            If the button above doesn't work, copy and paste this link into your browser:
-          </p>
-          <p style="
-            background:#f3f4f6;
-            padding:12px;
-            border-radius:6px;
-            word-break:break-all;
-            font-size:14px;
-            color:#333;
-          ">
-            ${activationLink}
-          </p>
-          <hr style="border:none; border-top:1px solid #e5e7eb; margin:30px 0;" />
-          <p style="font-size:13px; color:#999; text-align:center;">
-            This email was sent automatically. Please do not reply.<br>
-            © ${new Date().getFullYear()} YourApp. All rights reserved.
-          </p>
-        </div>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Activate Your New Email</title>
+      </head>
+      <body style="margin:0;padding:0;font-family:Arial,sans-serif;background-color:#f7f7f7;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f7f7f7;padding:20px 0;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border-radius:10px;padding:30px;max-width:600px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                <tr>
+                  <td align="center">
+                    <h2 style="color:#333;margin:0 0 20px 0;font-size:24px;">Activate Your New Email 🎉</h2>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 0;">
+                    <p style="margin:0 0 15px 0;color:#444;font-size:16px;">Hi <strong>${name}</strong>,</p>
+                    <p style="margin:0 0 25px 0;color:#555;font-size:15px;">You updated your email. Please verify it by clicking the button below.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding:20px 0;">
+                    <a href="${activationLink}" 
+                       style="display:inline-block;background-color:#4f46e5;color:#ffffff;padding:14px 28px;border-radius:8px;text-decoration:none;font-size:16px;font-weight:bold;">
+                      Activate Email
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 0;">
+                    <p style="margin:0 0 10px 0;color:#666;font-size:14px;">If the button above doesn't work, copy and paste this link into your browser:</p>
+                    <p style="margin:0;background-color:#f3f4f6;padding:12px;border-radius:6px;word-break:break-all;font-size:14px;color:#333;">
+                      ${activationLink}
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 0 0 0;border-top:1px solid #e5e7eb;">
+                    <p style="margin:10px 0 0 0;font-size:13px;color:#999;text-align:center;">If you did not change your email, please ignore this email.</p>
+                    <p style="margin:10px 0 0 0;font-size:12px;color:#999;text-align:center;">© ${new Date().getFullYear()} Game Wishlist. All rights reserved.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `;
 
     await sendEmail(
       email,
       "Activate Your New Email",
-      activationEmailTemplate(updatedUser.name, activationLink)
+      activationEmailTemplate(updatedUser.name, activationLink),
     );
   }
 
@@ -171,7 +169,7 @@ const adminUpdateSchema = yup.object({
     .matches(/[0-9]/, "Password must contain at least one number")
     .matches(
       /[@$!%*?&]/,
-      "Password must contain at least one special character"
+      "Password must contain at least one special character",
     )
     .optional(),
   role: yup.string().optional(),

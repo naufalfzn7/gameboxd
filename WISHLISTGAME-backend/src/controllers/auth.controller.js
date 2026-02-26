@@ -62,20 +62,49 @@ export const register = asyncHandler(async (req, res) => {
   const activationLink = `${appUrl}/api/auth/activate/${newUser.id}`;
 
   const activationEmailTemplate = (name, activationLink) => `
-    <div style="font-family: Arial, sans-serif; background-color:#f7f7f7; padding:20px;">
-      <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:10px; padding:30px;">
-        <h2 style="text-align:center;">Welcome to Game Wishlist 🎉</h2>
-        <p>Hi <strong>${name}</strong>,</p>
-        <p>Please verify your email by clicking the button below:</p>
-        <div style="text-align:center; margin:30px 0;">
-          <a href="${activationLink}"
-             style="background:#4f46e5;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;">
-            Activate Your Account
-          </a>
-        </div>
-        <p style="font-size:13px;color:#999;">If you did not request this, ignore this email.</p>
-      </div>
-    </div>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Activate Your Account</title>
+    </head>
+    <body style="margin:0;padding:0;font-family:Arial,sans-serif;background-color:#f7f7f7;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f7f7f7;padding:20px 0;">
+        <tr>
+          <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border-radius:10px;padding:30px;max-width:600px;">
+              <tr>
+                <td align="center">
+                  <h2 style="color:#333;margin:0 0 20px 0;font-size:24px;">Welcome to Game Wishlist 🎉</h2>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px 0;">
+                  <p style="margin:0 0 15px 0;color:#333;font-size:16px;">Hi <strong>${name}</strong>,</p>
+                  <p style="margin:0 0 25px 0;color:#555;font-size:15px;">Please verify your email by clicking the button below:</p>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:20px 0;">
+                  <a href="${activationLink}" 
+                     style="display:inline-block;background-color:#4f46e5;color:#ffffff;padding:14px 28px;border-radius:8px;text-decoration:none;font-size:16px;font-weight:bold;">
+                    Activate Your Account
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px 0 0 0;">
+                  <p style="margin:0;font-size:13px;color:#999;text-align:center;">If you did not request this, please ignore this email.</p>
+                  <p style="margin:15px 0 0 0;font-size:12px;color:#999;text-align:center;">Or copy this link: <a href="${activationLink}" style="color:#4f46e5;word-break:break-all;">${activationLink}</a></p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
   `;
 
   // ❗ JANGAN await
