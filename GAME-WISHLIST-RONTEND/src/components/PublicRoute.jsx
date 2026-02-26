@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useMeQuery } from "../services/usersApi";
 import { setUser } from "../features/authSlice";
+import LoadingOverlay from "./LoadingOverlay";
 
 const PublicRoute = () => {
   const { token } = useSelector((state) => state.auth);
@@ -24,10 +25,14 @@ const PublicRoute = () => {
   }, [token, data, dispatch, navigate]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <LoadingOverlay isLoading={true} message="Checking authentication..." />
+    );
   }
   if (token && data) {
-    return <div>Redirecting...</div>; // guarded by effect above
+    return (
+      <LoadingOverlay isLoading={true} message="Redirecting to dashboard..." />
+    );
   }
 
   return <Outlet />; // render children routes

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
 import { useMeQuery } from "../services/usersApi";
 import { setUser } from "../features/authSlice";
+import LoadingOverlay from "./LoadingOverlay";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const token = useSelector((state) => state.auth.token);
@@ -26,7 +27,9 @@ const ProtectedRoute = ({ allowedRoles }) => {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <LoadingOverlay isLoading={true} message="Verifying authentication..." />
+    );
   }
 
   if (isError || !data) {
