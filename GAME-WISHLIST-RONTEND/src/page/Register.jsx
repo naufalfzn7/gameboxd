@@ -45,7 +45,7 @@ const Register = () => {
       const result = await registerUser({ email, password, name }).unwrap();
       if (result)
         successAlert(
-          "Email activation has been sent. Please check your inbox."
+          "Email activation has been sent. Please check your inbox.",
         );
     } catch (err) {
       console.error("Registration failed: ", err);

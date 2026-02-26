@@ -10,6 +10,7 @@ import {
   FaFire,
   FaArrowRight,
 } from "react-icons/fa";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const Home = () => {
   const user = useSelector((state) => state.auth.user);
@@ -59,9 +60,10 @@ const Home = () => {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Loading...</div>
-      </div>
+      <LoadingOverlay
+        isLoading={true}
+        message="Loading your dashboard..."
+      />
     );
   }
 

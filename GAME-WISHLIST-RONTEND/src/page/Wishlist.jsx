@@ -95,7 +95,9 @@ const Wishlist = () => {
     const nextLabel = statusConfig[newStatus].label;
 
     setProcessingId(wishListId);
-    setLoadingMessage(`Updating "${gameTitle}" to ${nextLabel.toLowerCase()}...`);
+    setLoadingMessage(
+      `Updating "${gameTitle}" to ${nextLabel.toLowerCase()}...`,
+    );
     try {
       await updateWishList({ wishListId, status: newStatus }).unwrap();
       setLoadingMessage("");
@@ -123,12 +125,10 @@ const Wishlist = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading your wishlist...</p>
-        </div>
-      </div>
+      <LoadingOverlay
+        isLoading={true}
+        message="Loading your wishlist..."
+      />
     );
   }
 
@@ -150,10 +150,7 @@ const Wishlist = () => {
 
   return (
     <div className="min-h-screen bg-white p-6">
-      <LoadingOverlay
-        isLoading={!!loadingMessage}
-        message={loadingMessage}
-      />
+      <LoadingOverlay isLoading={!!loadingMessage} message={loadingMessage} />
       <div className="max-w-7xl mx-auto">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-black mb-2">My Wishlist</h1>

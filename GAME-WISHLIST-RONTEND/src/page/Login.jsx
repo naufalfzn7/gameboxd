@@ -50,10 +50,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
-      <LoadingOverlay
-        isLoading={isLoading}
-        message="Logging you in..."
-      />
+      <LoadingOverlay isLoading={isLoading} message="Logging you in..." />
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 space-y-6">
         <header className="text-center space-y-2">
           <p className="text-sm uppercase tracking-[0.2em] text-gray-500">

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useGetGamesQuery } from "../services/gameApi";
 import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const GameList = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,9 +30,10 @@ const GameList = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">Loading games...</div>
-      </div>
+      <LoadingOverlay
+        isLoading={true}
+        message="Loading games..."
+      />
     );
   }
 
