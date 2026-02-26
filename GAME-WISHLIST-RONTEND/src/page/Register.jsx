@@ -43,7 +43,8 @@ const Register = () => {
       const result = await registerUser({ email, password, name }).unwrap();
       if (result) {
         successAlert(
-          "Email activation has been sent. Please check your inbox.",
+          "Activation email sent. Please check your inbox. It may take a couple of minutes to arrive.",
+          4000,
         );
       }
     } catch (err) {

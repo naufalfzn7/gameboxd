@@ -1,11 +1,11 @@
 import Swal from "sweetalert2";
 
-export const successAlert = async (message) => {
+export const successAlert = async (message, timer = 1000) => {
   await Swal.fire({
     icon: "success",
     title: "Success",
     text: message,
-    timer: 1000,
+    timer,
     showConfirmButton: false,
     theme: "dark",
   });

@@ -11,6 +11,14 @@ export const transport = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  pool: {
+    maxConnections: 5,
+    maxMessages: 100,
+    rateDelta: 2000, // Rate limit: 1 message per 2 seconds
+    rateLimit: true,
+  },
+  connectionTimeout: 5000,
+  socketTimeout: 10000,
 });
 
 export const sendEmail = async (to, subject, html) => {
@@ -20,7 +28,7 @@ export const sendEmail = async (to, subject, html) => {
       to,
       "via",
       process.env.EMAIL_HOST,
-      port
+      port,
     );
 
     const info = await transport.sendMail({
