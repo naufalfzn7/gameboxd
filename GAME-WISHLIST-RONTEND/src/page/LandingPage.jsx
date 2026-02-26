@@ -24,8 +24,8 @@ const LandingPage = () => {
           manage your favorite video games. Create your wishlist and never miss
           out on the games you love!
         </p>
-        <Link to="/register">
-          <button className="px-8 sm:px-10 py-3 sm:py-4 bg-black text-white font-semibold rounded-lg hover:opacity-90 active:scale-95 transition text-base sm:text-lg drop-shadow-lg border border-black">
+        <Link to="/register" className="cursor-pointer hover:bg-amber-100">
+          <button className="px-8 sm:px-10 py-3 sm:py-4 bg-white text-black font-semibold rounded-lg hover:opacity-90 active:scale-95 transition text-base sm:text-lg drop-shadow-lg border border-black cursor-pointer">
             Get Started
           </button>
         </Link>
