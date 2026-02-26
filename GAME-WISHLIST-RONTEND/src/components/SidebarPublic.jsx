@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import {
   FaGamepad,
   FaHome,
@@ -9,17 +9,21 @@ import {
 } from "react-icons/fa";
 
 const SidebarPublic = () => {
+  const navLinkClass = ({ isActive }) =>
+    `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+      isActive ? "bg-black text-white" : "text-neutral-700 hover:bg-neutral-100"
+    }`;
   return (
     <div>
       <div className="drawer lg:drawer-open">
-        <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
+        <input id="drawer-public" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
           {/* Navbar */}
-          <nav className="navbar w-full bg-base-300 sticky top-0 z-10">
+          <nav className="navbar w-full bg-white sticky top-0 z-10 border-b border-neutral-200">
             <label
-              htmlFor="my-drawer-4"
+              htmlFor="drawer-public"
               aria-label="open sidebar"
-              className="btn btn-square btn-ghost"
+              className="btn btn-square btn-ghost text-neutral-700"
             >
               {/* Sidebar toggle icon */}
               <svg
@@ -38,72 +42,56 @@ const SidebarPublic = () => {
               </svg>
             </label>
             <div className="flex items-center gap-2 px-4 font-semibold">
-              <FaGamepad className="text-xl text-gray-300" />
-              <span>Gamebox'd</span>
+              <div className="w-9 h-9 rounded-lg bg-black flex items-center justify-center">
+                <FaGamepad className="text-white text-lg" />
+              </div>
+              <span className="text-neutral-900">Gamebox'd</span>
             </div>
           </nav>
           {/* Page content here */}
-          <div className="p-1">
+          <div className="p-2 sm:p-4 bg-neutral-100 min-h-[calc(100vh-64px)]">
             <Outlet />
           </div>
         </div>
 
         <div className="drawer-side is-drawer-close:overflow-visible sticky top-0 h-screen">
           <label
-            htmlFor="my-drawer-4"
+            htmlFor="drawer-public"
             aria-label="close sidebar"
             className="drawer-overlay"
           ></label>
-          <div className="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64 sticky top-0">
+          <div className="flex min-h-full flex-col items-start bg-white is-drawer-close:w-14 is-drawer-open:w-64 sticky top-0 border-r border-neutral-200">
             {/* Sidebar Logo */}
-            <div className="flex items-center justify-center w-full py-4 border-b border-base-300">
+            <div className="flex items-center justify-center w-full py-4 border-b border-neutral-200">
               <div className="flex items-center gap-3 is-drawer-close:justify-center">
-                <div className="bg-gray-800 p-2 rounded-lg border border-gray-600">
+                <div className="bg-black p-2 rounded-lg">
                   <FaGamepad className="text-white text-xl" />
                 </div>
-                <span className="font-bold text-lg is-drawer-close:hidden">
+                <span className="font-bold text-lg text-neutral-900 is-drawer-close:hidden">
                   Gamebox'd
                 </span>
               </div>
             </div>
             {/* Sidebar content here */}
-            <ul className="menu w-full grow">
-              {/* List item */}
-              <Link to="/">
-                <li>
-                  <button
-                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                    data-tip="Home Page"
-                  >
-                    <FaHome className="text-lg" />
-                    <span className="is-drawer-close:hidden">Home</span>
-                  </button>
-                </li>
-              </Link>
-              <Link to="/login">
-                <li>
-                  <button
-                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                    data-tip="Login Page"
-                  >
-                    <FaSignInAlt className="text-lg" />
-                    <span className="is-drawer-close:hidden">Login</span>
-                  </button>
-                </li>
-              </Link>
-
-              {/* List item */}
-              <Link to="/register">
-                <li>
-                  <button
-                    className="is-drawer-close:tooltip is-drawer-close:tooltip-right"
-                    data-tip="Register Page"
-                  >
-                    <FaUserPlus className="text-lg" />
-                    <span className="is-drawer-close:hidden">Register</span>
-                  </button>
-                </li>
-              </Link>
+            <ul className="w-full grow space-y-1 px-2 py-4">
+              <li>
+                <NavLink to="/" className={navLinkClass}>
+                  <FaHome className="text-lg" />
+                  <span className="is-drawer-close:hidden">Home</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/login" className={navLinkClass}>
+                  <FaSignInAlt className="text-lg" />
+                  <span className="is-drawer-close:hidden">Login</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/register" className={navLinkClass}>
+                  <FaUserPlus className="text-lg" />
+                  <span className="is-drawer-close:hidden">Register</span>
+                </NavLink>
+              </li>
             </ul>
           </div>
         </div>
