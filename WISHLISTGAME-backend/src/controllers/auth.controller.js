@@ -127,25 +127,29 @@ export const register = asyncHandler(async (req, res) => {
     </html>
   `;
 
-  // Send activation email (fire and forget, but log if it fails)
+  // Send activation email - MUST AWAIT in serverless environment
   console.log("🚀 Sending activation email...");
-  sendEmail(
-    newUser.email,
-    "Activate Your Account",
-    activationEmailTemplate(newUser.name, activationLink),
-  )
-    .then((result) => {
-      if (result.success) {
-        console.log("✅ Email sent successfully to:", newUser.email);
-      } else {
-        console.error("❌ Email send failed:", result.error);
-      }
-      console.log("=".repeat(60) + "\n");
-    })
-    .catch((error) => {
-      console.error("❌ Error during email send:", error.message);
-      console.log("=".repeat(60) + "\n");
-    });
+
+  try {
+    const emailResult = await sendEmail(
+      newUser.email,
+      "Activate Your Account",
+      activationEmailTemplate(newUser.name, activationLink),
+    );
+
+    if (emailResult.success) {
+      console.log("✅ Email sent successfully to:", newUser.email);
+      console.log("   Message ID:", emailResult.messageId);
+    } else {
+      console.error("❌ Email send failed:", emailResult.error);
+      // Don't block registration if email fails, just log it
+    }
+  } catch (error) {
+    console.error("❌ Error during email send:", error.message);
+    // Don't block registration if email fails, just log it
+  }
+
+  console.log("=".repeat(60) + "\n");
 
   return res.status(201).json({
     success: true,

@@ -22,14 +22,10 @@ export const transport = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  pool: {
-    maxConnections: 5,
-    maxMessages: 100,
-    rateDelta: 2000, // Rate limit: 1 message per 2 seconds
-    rateLimit: true,
-  },
-  connectionTimeout: 5000,
-  socketTimeout: 10000,
+  pool: false, // Disable connection pooling for serverless
+  connectionTimeout: 10000, // Increased for serverless
+  greetingTimeout: 10000,
+  socketTimeout: 15000, // Increased for serverless
 });
 
 // Test connection on startup

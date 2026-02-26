@@ -143,19 +143,30 @@ export const updateCurrentUser = asyncHandler(async (req, res) => {
       </html>
     `;
 
-    // Send email (fire and forget, but log if it fails)
-    sendEmail(
-      email,
-      "Activate Your New Email",
-      activationEmailTemplate(updatedUser.name, activationLink),
-    ).catch((error) => {
+    // Send email - MUST AWAIT in serverless environment
+    try {
+      const emailResult = await sendEmail(
+        email,
+        "Activate Your New Email",
+        activationEmailTemplate(updatedUser.name, activationLink),
+      );
+
+      if (emailResult.success) {
+        console.log("✅ Email change verification sent to:", email);
+      } else {
+        console.error(
+          "❌ Failed to send email change verification:",
+          emailResult.error,
+        );
+      }
+    } catch (error) {
       console.error(
         "Failed to send email change verification to",
         email,
         ":",
         error,
       );
-    });
+    }
   }
 
   res.status(200).json({
