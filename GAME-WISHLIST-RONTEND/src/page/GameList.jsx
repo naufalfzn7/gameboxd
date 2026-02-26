@@ -29,12 +29,7 @@ const GameList = () => {
   };
 
   if (isLoading) {
-    return (
-      <LoadingOverlay
-        isLoading={true}
-        message="Loading games..."
-      />
-    );
+    return <LoadingOverlay isLoading={true} message="Loading games..." />;
   }
 
   if (error) {

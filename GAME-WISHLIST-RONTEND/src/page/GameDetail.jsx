@@ -191,10 +191,7 @@ const GameDetail = () => {
   // Early returns for loading/error states
   if (isLoading) {
     return (
-      <LoadingOverlay
-        isLoading={true}
-        message="Loading game details..."
-      />
+      <LoadingOverlay isLoading={true} message="Loading game details..." />
     );
   }
 

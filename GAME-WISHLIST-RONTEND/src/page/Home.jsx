@@ -60,10 +60,7 @@ const Home = () => {
 
   if (!user) {
     return (
-      <LoadingOverlay
-        isLoading={true}
-        message="Loading your dashboard..."
-      />
+      <LoadingOverlay isLoading={true} message="Loading your dashboard..." />
     );
   }
 

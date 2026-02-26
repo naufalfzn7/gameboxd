@@ -125,10 +125,7 @@ const Wishlist = () => {
 
   if (isLoading) {
     return (
-      <LoadingOverlay
-        isLoading={true}
-        message="Loading your wishlist..."
-      />
+      <LoadingOverlay isLoading={true} message="Loading your wishlist..." />
     );
   }
 
