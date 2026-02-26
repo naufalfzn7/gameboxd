@@ -224,7 +224,7 @@ const GameDetail = () => {
             {/* Rating Card */}
             <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-md rounded-xl p-4 border border-gray-700">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-gray-400 mb-1">User Rating</p>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
@@ -248,6 +248,11 @@ const GameDetail = () => {
                     </span>
                     <span className="text-gray-400">/ 5.0</span>
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {game?.reviewCount > 0
+                      ? `Based on ${game.reviewCount} user review${game.reviewCount !== 1 ? "s" : ""}`
+                      : "No user reviews yet"}
+                  </p>
                 </div>
               </div>
             </div>

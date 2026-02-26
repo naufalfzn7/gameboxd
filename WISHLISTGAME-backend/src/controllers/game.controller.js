@@ -5,6 +5,7 @@ import {
   mapRawgGameToDetail,
   mapRawgGameToSummary,
 } from "../services/rawgApi.js";
+import { prisma } from "../config/db.js";
 
 export const getAllGames = asyncHandler(async (req, res) => {
   // Get pagination parameters from query string with defaults
@@ -42,8 +43,32 @@ export const getGameById = asyncHandler(async (req, res) => {
       message: "Invalid game ID",
     });
   }
+  
+  // Fetch game details from RAWG
   const rawgGame = await fetchRawgGameById(gameId);
   const game = mapRawgGameToDetail(rawgGame);
+  
+  // Calculate average rating from user reviews in database
+  const reviews = await prisma.review.findMany({
+    where: { gameId: gameId },
+    select: { rating: true },
+  });
+  
+  // Calculate user rating (override RAWG rating with user reviews)
+  let userRating = 0;
+  let reviewCount = 0;
+  
+  if (reviews && reviews.length > 0) {
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    userRating = totalRating / reviews.length;
+    reviewCount = reviews.length;
+  }
+  
+  // Override rating with user-generated rating
+  game.rating = userRating;
+  game.reviewCount = reviewCount;
+  game.rawgRating = rawgGame.rating; // Keep original RAWG rating for reference
+  
   res.status(200).json({
     success: true,
     data: game,
