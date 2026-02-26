@@ -12,10 +12,15 @@ import { authentication } from "../middlewares/authorization.js";
 
 const router = Router();
 
+// GET endpoints are PUBLIC - anyone can view reviews
+router.get("/game/:gameId", getReviewByGameId);
+router.get("/:id", getReviewByReviewId);
+
+// User-specific and all reviews require authentication
 router.get("/", authentication, getAllReviews);
 router.get("/me", authentication, getReviewByUserId);
-router.get("/game/:gameId", authentication, getReviewByGameId);
-router.get("/:id", authentication, getReviewByReviewId);
+
+// Modify operations require authentication
 router.post("/", authentication, addReview);
 router.delete("/:id", authentication, deleteReview);
 router.put("/:id", authentication, updateReview);
