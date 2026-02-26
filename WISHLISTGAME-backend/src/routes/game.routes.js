@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { authentication } from "../middlewares/authorization.js";
 import { getAllGames, getGameById } from "../controllers/game.controller.js";
 
 const router = Router();
 
-router.get("/", authentication, getAllGames);
-router.get("/:id", authentication, getGameById);
+// Game routes are PUBLIC - no authentication required
+router.get("/", getAllGames);
+router.get("/:id", getGameById);
 
 export default router;
