@@ -58,6 +58,7 @@ export const register = asyncHandler(async (req, res) => {
 
   // ✅ GUNAKAN DOMAIN PRODUCTION
   const appUrl = process.env.APP_URL || "https://gameboxd-backend.vercel.app";
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   const activationLink = `${appUrl}/api/auth/activate/${newUser.id}`;
 
   const activationEmailTemplate = (name, activationLink) => `
@@ -174,6 +175,9 @@ export const logout = asyncHandler(async (req, res) => {
 export const activateAccount = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
+  // ✅ GUNAKAN FRONTEND URL
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
   // Cari user
   const existingUser = await prisma.user.findUnique({
     where: { id },
@@ -211,7 +215,7 @@ export const activateAccount = asyncHandler(async (req, res) => {
         <div class="card">
           <h2>Hello ${existingUser.name}! 👋</h2>
           <p>Your account is already activated.</p>
-          <a href="http://localhost:5173/login"
+          <a href="${frontendUrl}/login"
             style="display:inline-block;margin-top:20px;padding:10px 20px;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px;">
             Go to Login
           </a>
@@ -273,7 +277,7 @@ export const activateAccount = asyncHandler(async (req, res) => {
       <div class="card">
         <h2>🎉 Selamat ${user.name}! 🎉</h2>
         <p>Akun kamu berhasil diaktivasi.</p>
-        <a href="http://localhost:5173/login">Login Sekarang</a>
+        <a href="${frontendUrl}/login">Login Sekarang</a>
       </div>
     </body>
     </html>
@@ -282,6 +286,10 @@ export const activateAccount = asyncHandler(async (req, res) => {
 
 export const changeEmail = asyncHandler(async (req, res) => {
   const { id } = req.params;
+
+  // ✅ GUNAKAN FRONTEND URL
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
   // Cari user
   const existingUser = await prisma.user.findUnique({
     where: { id },
@@ -310,7 +318,7 @@ export const changeEmail = asyncHandler(async (req, res) => {
   res.send(
     `<h1>Email Successfully Changed</h1>
      <p>Your email has been updated to ${user.email}.</p>
-      <a href="http://localhost:5173/login">Go to Login</a>
+      <a href="${frontendUrl}/login">Go to Login</a>
      `,
   );
 });
