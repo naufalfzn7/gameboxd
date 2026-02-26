@@ -11,8 +11,11 @@ import Swal from "sweetalert2";
 const Wishlist = () => {
   const navigate = useNavigate();
   const { data, error, isLoading } = useGetWishListQuery();
-  const [removeFromWishList] = useRemoveFromWishListByIdMutation();
-  const [updateWishList] = useUpdateWishListByIdMutation();
+  const [removeFromWishList, { isLoading: isRemoving }] =
+    useRemoveFromWishListByIdMutation();
+  const [updateWishList, { isLoading: isUpdating }] =
+    useUpdateWishListByIdMutation();
+  const [processingId, setProcessingId] = useState(null);
 
   const wishlistItems = data?.data || [];
 
@@ -63,6 +66,7 @@ const Wishlist = () => {
       confirmButtonText: "Yes, remove it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setProcessingId(wishListId);
         try {
           await removeFromWishList(wishListId).unwrap();
           Swal.fire(
@@ -73,6 +77,8 @@ const Wishlist = () => {
         } catch (err) {
           Swal.fire("Error!", "Failed to remove from wishlist.", "error");
           console.error("Remove from wishlist failed:", err);
+        } finally {
+          setProcessingId(null);
         }
       }
     });
@@ -83,6 +89,7 @@ const Wishlist = () => {
     const newStatus = config.nextStatus;
     const nextLabel = statusConfig[newStatus].label;
 
+    setProcessingId(wishListId);
     try {
       await updateWishList({ wishListId, status: newStatus }).unwrap();
       Swal.fire(
@@ -97,6 +104,8 @@ const Wishlist = () => {
         err?.message ||
         "Failed to update wishlist status.";
       Swal.fire("Error!", errorMessage, "error");
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -273,9 +282,18 @@ const Wishlist = () => {
                                   item.game.title,
                                 )
                               }
-                              className="flex-1 sm:flex-initial px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-medium text-sm border border-gray-700"
+                              disabled={isUpdating || processingId === item.id}
+                              className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg transition-colors font-medium text-sm border ${
+                                isUpdating || processingId === item.id
+                                  ? "bg-gray-600 text-gray-300 border-gray-500 cursor-not-allowed"
+                                  : "bg-gray-800 text-white border-gray-700 hover:bg-gray-900"
+                              }`}
                             >
-                              {getStatusButtonText(item.status)}
+                              {processingId === item.id && isUpdating ? (
+                                <span>Updating...</span>
+                              ) : (
+                                getStatusButtonText(item.status)
+                              )}
                             </button>
 
                             {/* Remove Button */}
@@ -286,10 +304,19 @@ const Wishlist = () => {
                                   item.game.title,
                                 )
                               }
-                              className="flex-1 sm:flex-initial px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center justify-center gap-2"
+                              disabled={isRemoving || processingId === item.id}
+                              className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2 ${
+                                isRemoving || processingId === item.id
+                                  ? "bg-red-400 text-red-100 cursor-not-allowed"
+                                  : "bg-red-600 text-white hover:bg-red-700"
+                              }`}
                             >
                               <FaTrash className="text-sm" />
-                              <span>Remove</span>
+                              <span>
+                                {processingId === item.id && isRemoving
+                                  ? "Removing..."
+                                  : "Remove"}
+                              </span>
                             </button>
                           </div>
                         </div>

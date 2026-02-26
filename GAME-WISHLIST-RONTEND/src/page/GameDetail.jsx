@@ -37,12 +37,19 @@ const GameDetail = () => {
   const [editingReviewId, setEditingReviewId] = useState(null);
   const [editingRating, setEditingRating] = useState(5);
   const [editingComment, setEditingComment] = useState("");
+  const [processingReviewId, setProcessingReviewId] = useState(null);
 
   // Memoize computed values for better performance
   const game = useMemo(() => data?.data, [data]);
-  const genres = useMemo(() => Array.isArray(game?.genre) ? game.genre : [], [game?.genre]);
-  const displayRating = useMemo(() => typeof game?.rating === "number" ? game.rating : 0, [game?.rating]);
-  
+  const genres = useMemo(
+    () => (Array.isArray(game?.genre) ? game.genre : []),
+    [game?.genre],
+  );
+  const displayRating = useMemo(
+    () => (typeof game?.rating === "number" ? game.rating : 0),
+    [game?.rating],
+  );
+
   const releaseDateText = useMemo(() => {
     if (!game?.releaseDate) return "Unknown";
     return new Date(game.releaseDate).toLocaleDateString("en-US", {
@@ -51,7 +58,7 @@ const GameDetail = () => {
       day: "numeric",
     });
   }, [game?.releaseDate]);
-  
+
   const updatedDateText = useMemo(() => {
     if (!game?.rawg?.updated) return "Unknown";
     return new Date(game.rawg.updated).toLocaleDateString("en-US", {
@@ -60,7 +67,7 @@ const GameDetail = () => {
       day: "numeric",
     });
   }, [game?.rawg?.updated]);
-  
+
   const platformNames = useMemo(() => {
     if (!Array.isArray(game?.platforms)) return "";
     return game.platforms
@@ -86,23 +93,26 @@ const GameDetail = () => {
     }
   }, [addToWishList, gameId, game?.title]);
 
-  const handleAddReview = useCallback(async (event) => {
-    event.preventDefault();
-    try {
-      await addReview({
-        gameId,
-        rating,
-        comment,
-      }).unwrap();
-      setRating(5);
-      setComment("");
-      Swal.fire("Success!", "Review added successfully.", "success");
-    } catch (err) {
-      const errorMessage =
-        err?.data?.message || err?.message || "Failed to add review.";
-      Swal.fire("Error!", errorMessage, "error");
-    }
-  }, [addReview, gameId, rating, comment]);
+  const handleAddReview = useCallback(
+    async (event) => {
+      event.preventDefault();
+      try {
+        await addReview({
+          gameId,
+          rating,
+          comment,
+        }).unwrap();
+        setRating(5);
+        setComment("");
+        Swal.fire("Success!", "Review added successfully.", "success");
+      } catch (err) {
+        const errorMessage =
+          err?.data?.message || err?.message || "Failed to add review.";
+        Swal.fire("Error!", errorMessage, "error");
+      }
+    },
+    [addReview, gameId, rating, comment],
+  );
 
   const handleStartEdit = useCallback((review) => {
     setEditingReviewId(review.id);
@@ -116,36 +126,55 @@ const GameDetail = () => {
     setEditingComment("");
   }, []);
 
-  const handleUpdateReview = useCallback(async (event) => {
-    event.preventDefault();
-    try {
-      await updateReview({
-        reviewId: editingReviewId,
-        rating: editingRating,
-        comment: editingComment,
-        gameId,
-      }).unwrap();
-      handleCancelEdit();
-      Swal.fire("Success!", "Review updated successfully.", "success");
-    } catch (err) {
-      const errorMessage =
-        err?.data?.message || err?.message || "Failed to update review.";
-      Swal.fire("Error!", errorMessage, "error");
-    }
-  }, [updateReview, editingReviewId, editingRating, editingComment, gameId, handleCancelEdit]);
+  const handleUpdateReview = useCallback(
+    async (event) => {
+      event.preventDefault();
+      setProcessingReviewId(editingReviewId);
+      try {
+        await updateReview({
+          reviewId: editingReviewId,
+          rating: editingRating,
+          comment: editingComment,
+          gameId,
+        }).unwrap();
+        handleCancelEdit();
+        Swal.fire("Success!", "Review updated successfully.", "success");
+      } catch (err) {
+        const errorMessage =
+          err?.data?.message || err?.message || "Failed to update review.";
+        Swal.fire("Error!", errorMessage, "error");
+      } finally {
+        setProcessingReviewId(null);
+      }
+    },
+    [
+      updateReview,
+      editingReviewId,
+      editingRating,
+      editingComment,
+      gameId,
+      handleCancelEdit,
+    ],
+  );
 
-  const handleDeleteReview = useCallback(async (reviewId) => {
-    try {
-      await deleteReview({ reviewId, gameId }).unwrap();
-      Swal.fire("Deleted!", "Review deleted successfully.", "success");
-    } catch (err) {
-      const errorMessage =
-        err?.data?.message || err?.message || "Failed to delete review.";
-      Swal.fire("Error!", errorMessage, "error");
-    }
-  }, [deleteReview, gameId]);
+  const handleDeleteReview = useCallback(
+    async (reviewId) => {
+      setProcessingReviewId(reviewId);
+      try {
+        await deleteReview({ reviewId, gameId }).unwrap();
+        Swal.fire("Deleted!", "Review deleted successfully.", "success");
+      } catch (err) {
+        const errorMessage =
+          err?.data?.message || err?.message || "Failed to delete review.";
+        Swal.fire("Error!", errorMessage, "error");
+      } finally {
+        setProcessingReviewId(null);
+      }
+    },
+    [deleteReview, gameId],
+  );
 
-  // Early returns for loading/error states  
+  // Early returns for loading/error states
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900">
@@ -564,15 +593,25 @@ const GameDetail = () => {
                         <div className="flex gap-3 mt-4">
                           <button
                             type="submit"
-                            disabled={isUpdatingReview}
+                            disabled={
+                              isUpdatingReview ||
+                              processingReviewId === editingReviewId
+                            }
                             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
                           >
-                            {isUpdatingReview ? "Saving..." : "Save"}
+                            {isUpdatingReview ||
+                            processingReviewId === editingReviewId
+                              ? "Saving..."
+                              : "Save"}
                           </button>
                           <button
                             type="button"
                             onClick={handleCancelEdit}
-                            className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg"
+                            disabled={
+                              isUpdatingReview ||
+                              processingReviewId === editingReviewId
+                            }
+                            className="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
                           >
                             Cancel
                           </button>
@@ -588,17 +627,26 @@ const GameDetail = () => {
                           <button
                             type="button"
                             onClick={() => handleStartEdit(review)}
-                            className="text-blue-400 hover:text-blue-300"
+                            disabled={
+                              isDeletingReview ||
+                              processingReviewId === review.id
+                            }
+                            className="text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDeleteReview(review.id)}
-                            disabled={isDeletingReview}
-                            className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                            disabled={
+                              isDeletingReview ||
+                              processingReviewId === review.id
+                            }
+                            className="text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            Delete
+                            {processingReviewId === review.id
+                              ? "Deleting..."
+                              : "Delete"}
                           </button>
                         </div>
                       )}
