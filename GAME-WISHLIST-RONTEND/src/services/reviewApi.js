@@ -33,46 +33,7 @@ const reviewApi = createApi({
         method: "POST",
         body: { gameId, rating, comment },
       }),
-      // Optimistic update - instant UI feedback
-      async onQueryStarted(
-        { gameId, rating, comment },
-        { dispatch, queryFulfilled, getState },
-      ) {
-        const state = getState();
-        const userId = state.auth.user?.id;
-        const userName = state.auth.user?.name || state.auth.user?.email;
-
-        // Optimistically add review to cache
-        const patchResult = dispatch(
-          reviewApi.util.updateQueryData(
-            "getReviewsByGame",
-            gameId,
-            (draft) => {
-              const tempReview = {
-                id: `temp-${Date.now()}`,
-                rating,
-                comment,
-                gameId,
-                userId,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                user: {
-                  id: userId,
-                  name: userName,
-                  email: userName,
-                },
-              };
-              draft.data.unshift(tempReview);
-            },
-          ),
-        );
-
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
+      // ✅ No optimistic update - only show review after successful API response
       invalidatesTags: (result, error, args) => [
         { type: "reviews", id: args.gameId },
         { type: "game", id: args.gameId },
