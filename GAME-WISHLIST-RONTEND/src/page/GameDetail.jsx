@@ -11,6 +11,7 @@ import {
   useUpdateReviewMutation,
 } from "../services/reviewApi";
 import Swal from "sweetalert2";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const GameDetail = () => {
   const { gameId } = useParams();
@@ -38,6 +39,7 @@ const GameDetail = () => {
   const [editingRating, setEditingRating] = useState(5);
   const [editingComment, setEditingComment] = useState("");
   const [processingReviewId, setProcessingReviewId] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   // Memoize computed values for better performance
   const game = useMemo(() => data?.data, [data]);
@@ -78,14 +80,17 @@ const GameDetail = () => {
 
   // Memoized handlers with useCallback for better performance
   const handleAddToWishList = useCallback(async () => {
+    setLoadingMessage(`Adding "${game?.title}" to wishlist...`);
     try {
       await addToWishList(gameId).unwrap();
+      setLoadingMessage("");
       Swal.fire(
         "Success!",
         `${game.title} has been added to your wishlist.`,
         "success",
       );
     } catch (err) {
+      setLoadingMessage("");
       console.error("Add to wishlist error:", err);
       const errorMessage =
         err?.data?.message || err?.message || "Failed to add to wishlist.";
@@ -96,6 +101,7 @@ const GameDetail = () => {
   const handleAddReview = useCallback(
     async (event) => {
       event.preventDefault();
+      setLoadingMessage("Adding your review...");
       try {
         await addReview({
           gameId,
@@ -104,8 +110,10 @@ const GameDetail = () => {
         }).unwrap();
         setRating(5);
         setComment("");
+        setLoadingMessage("");
         Swal.fire("Success!", "Review added successfully.", "success");
       } catch (err) {
+        setLoadingMessage("");
         const errorMessage =
           err?.data?.message || err?.message || "Failed to add review.";
         Swal.fire("Error!", errorMessage, "error");
@@ -130,6 +138,7 @@ const GameDetail = () => {
     async (event) => {
       event.preventDefault();
       setProcessingReviewId(editingReviewId);
+      setLoadingMessage("Updating your review...");
       try {
         await updateReview({
           reviewId: editingReviewId,
@@ -138,8 +147,10 @@ const GameDetail = () => {
           gameId,
         }).unwrap();
         handleCancelEdit();
+        setLoadingMessage("");
         Swal.fire("Success!", "Review updated successfully.", "success");
       } catch (err) {
+        setLoadingMessage("");
         const errorMessage =
           err?.data?.message || err?.message || "Failed to update review.";
         Swal.fire("Error!", errorMessage, "error");
@@ -160,10 +171,13 @@ const GameDetail = () => {
   const handleDeleteReview = useCallback(
     async (reviewId) => {
       setProcessingReviewId(reviewId);
+      setLoadingMessage("Deleting review...");
       try {
         await deleteReview({ reviewId, gameId }).unwrap();
+        setLoadingMessage("");
         Swal.fire("Deleted!", "Review deleted successfully.", "success");
       } catch (err) {
+        setLoadingMessage("");
         const errorMessage =
           err?.data?.message || err?.message || "Failed to delete review.";
         Swal.fire("Error!", errorMessage, "error");
@@ -222,6 +236,10 @@ const GameDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      <LoadingOverlay
+        isLoading={!!loadingMessage}
+        message={loadingMessage}
+      />
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 pt-6">
         <button

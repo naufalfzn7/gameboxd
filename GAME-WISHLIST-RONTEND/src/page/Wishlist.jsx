@@ -7,6 +7,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { FaTrash, FaCheckCircle, FaClock } from "react-icons/fa";
 import Swal from "sweetalert2";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 const Wishlist = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Wishlist = () => {
   const [updateWishList, { isLoading: isUpdating }] =
     useUpdateWishListByIdMutation();
   const [processingId, setProcessingId] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const wishlistItems = data?.data || [];
 
@@ -67,14 +69,17 @@ const Wishlist = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         setProcessingId(wishListId);
+        setLoadingMessage(`Removing "${gameTitle}" from wishlist...`);
         try {
           await removeFromWishList(wishListId).unwrap();
+          setLoadingMessage("");
           Swal.fire(
             "Removed!",
             `${gameTitle} has been removed from your wishlist.`,
             "success",
           );
         } catch (err) {
+          setLoadingMessage("");
           Swal.fire("Error!", "Failed to remove from wishlist.", "error");
           console.error("Remove from wishlist failed:", err);
         } finally {
@@ -90,14 +95,17 @@ const Wishlist = () => {
     const nextLabel = statusConfig[newStatus].label;
 
     setProcessingId(wishListId);
+    setLoadingMessage(`Updating "${gameTitle}" to ${nextLabel.toLowerCase()}...`);
     try {
       await updateWishList({ wishListId, status: newStatus }).unwrap();
+      setLoadingMessage("");
       Swal.fire(
         "Success!",
         `${gameTitle} has been marked as ${nextLabel.toLowerCase()}.`,
         "success",
       );
     } catch (err) {
+      setLoadingMessage("");
       console.error("Update status error:", err);
       const errorMessage =
         err?.data?.message ||
@@ -142,6 +150,10 @@ const Wishlist = () => {
 
   return (
     <div className="min-h-screen bg-white p-6">
+      <LoadingOverlay
+        isLoading={!!loadingMessage}
+        message={loadingMessage}
+      />
       <div className="max-w-7xl mx-auto">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-black mb-2">My Wishlist</h1>
