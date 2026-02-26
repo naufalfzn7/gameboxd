@@ -280,10 +280,12 @@ const Profile = () => {
             </h2>
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <label className="block text-sm font-medium text-neutral-800 mb-1">
+                  Name
+                </label>
                 <input
                   type="text"
-                  className="input input-bordered w-full"
+                  className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 outline-none focus:border-black focus:ring-1 focus:ring-black"
                   placeholder="Your name"
                   {...register("name")}
                 />
@@ -295,10 +297,12 @@ const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="block text-sm font-medium text-neutral-800 mb-1">
+                  Email
+                </label>
                 <input
                   type="email"
-                  className="input input-bordered w-full"
+                  className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 outline-none focus:border-black focus:ring-1 focus:ring-black"
                   placeholder="you@example.com"
                   {...register("email")}
                 />
@@ -311,20 +315,20 @@ const Profile = () => {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium text-neutral-800 mb-1">
                     New Password
                   </label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
-                      className="input input-bordered w-full pr-12"
+                      className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 pr-12 text-sm text-neutral-900 placeholder-neutral-400 outline-none focus:border-black focus:ring-1 focus:ring-black"
                       placeholder="Leave blank to keep current password"
                       {...register("password")}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-600 hover:text-neutral-900"
                     >
                       {showPassword ? (
                         <IoEye size={20} />
@@ -341,13 +345,13 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium text-neutral-800 mb-1">
                     Confirm Password
                   </label>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? "text" : "password"}
-                      className="input input-bordered w-full pr-12"
+                      className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 pr-12 text-sm text-neutral-900 placeholder-neutral-400 outline-none focus:border-black focus:ring-1 focus:ring-black"
                       placeholder="Repeat new password"
                       {...register("confirmPassword")}
                     />
@@ -356,7 +360,7 @@ const Profile = () => {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-600 hover:text-neutral-900"
                     >
                       {showConfirmPassword ? (
                         <IoEye size={20} />
@@ -382,7 +386,7 @@ const Profile = () => {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                 <button
                   type="button"
-                  className="btn btn-ghost"
+                  className="px-4 py-2 rounded-lg border border-neutral-300 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
                   onClick={() =>
                     reset({
                       name: user.name || "",
@@ -396,7 +400,7 @@ const Profile = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="px-4 py-2 rounded-lg bg-black text-white text-sm font-semibold hover:opacity-90 active:scale-95 transition disabled:opacity-50"
                   disabled={isUpdating}
                 >
                   {isUpdating ? "Saving..." : "Save Changes"}
