@@ -75,10 +75,49 @@ router.get("/game/:gameId", getReviewByGameId); // PUBLIC
 5. Frontend fetches reviews → GET `/api/reviews/game/:id` (public) ✓
 6. Page works on first load and after refresh ✓
 
+## Third Issue: Frontend SPA Routing (Vercel Configuration)
+
+After backend fixes, user reported 404 error on ALL pages when refreshing:
+- First load via React Router: works fine ✓
+- After refresh: `GET /dashboard 404 NOT_FOUND`
+
+**Root Cause:** Vercel Frontend tidak punya routing configuration untuk handle SPA (Single Page Application).
+
+When user refresh, Vercel tries to serve `/dashboard` as physical file → doesn't exist → 404 error.
+
+**Solution:** Create `vercel.json` in frontend folder with rewrites configuration:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+This tells Vercel: "For ANY route, serve index.html and let React Router handle it client-side"
+
+**File Created:** `GAME-WISHLIST-RONTEND/vercel.json`
+
+**Verification:**
+```
+✅ /dashboard - Status: 200
+✅ /gamelist/4200 - Status: 200
+✅ /gamelist/5286 - Status: 200
+✅ /profile - Status: 200
+✅ /wishlist - Status: 200
+```
+
+All routes now work on first load AND after refresh!
+
 ## Commits
 
-- `4039df3` - Fix: make game routes public
-- `d86e5cf` - Fix: make review GET endpoints public
+- `4039df3` - Fix: make game routes public (backend)
+- `d86e5cf` - Fix: make review GET endpoints public (backend)
+- `d1159cd` - Fix: add Vercel SPA routing config for frontend
 
 ## Security Status
 
@@ -89,3 +128,12 @@ Proper authentication model:
   - Read: `users/me`, `users/all`, `reviews/me`, `wishlist/*`
   - Write: `reviews/:id` (POST/PUT/DELETE), `wishlist/*` (POST/PUT/DELETE), `users/*` (PUT/DELETE)
   - Reason: View personal data and existing data needs auth, modify operations need auth
+
+## Summary
+
+**3 Different Issues, 3 Fixes:**
+1. ❌ Backend game routes required auth → ✅ Made public
+2. ❌ Backend review GET routes required auth → ✅ Made public  
+3. ❌ Frontend SPA routing not configured → ✅ Added vercel.json
+
+**Result:** All pages work perfectly on first load and after refresh! 🎉
