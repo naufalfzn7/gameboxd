@@ -24,9 +24,18 @@ const registerSchema = yup.object({
 
 // REGISTER
 export const register = asyncHandler(async (req, res) => {
+  console.log("\n" + "=".repeat(60));
+  console.log("🔐 REGISTRATION REQUEST RECEIVED");
+  console.log("=".repeat(60));
+  console.log("📧 Email:", req.body.email);
+  console.log("👤 Name:", req.body.name);
+
   try {
+    console.log("✓ Validating input...");
     await registerSchema.validate(req.body, { abortEarly: false });
+    console.log("✓ Validation passed");
   } catch (err) {
+    console.log("❌ Validation failed:", err.errors);
     return res.status(400).json({
       success: false,
       errors: err.errors,
@@ -35,17 +44,20 @@ export const register = asyncHandler(async (req, res) => {
 
   const { email, password, name } = req.body;
 
+  console.log("✓ Checking if user already exists...");
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
 
   if (existingUser) {
+    console.log("❌ User already exists:", email);
     return res.status(400).json({
       success: false,
       message: "User already exists",
     });
   }
 
+  console.log("✓ User does not exist, creating...");
   const hashedPassword = await hashPassword(password);
 
   const newUser = await prisma.user.create({
@@ -56,10 +68,18 @@ export const register = asyncHandler(async (req, res) => {
     },
   });
 
+  console.log("✓ User created successfully, ID:", newUser.id);
+
   // ✅ GUNAKAN DOMAIN PRODUCTION
   const appUrl = process.env.APP_URL || "https://gameboxd-backend.vercel.app";
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   const activationLink = `${appUrl}/api/auth/activate/${newUser.id}`;
+
+  console.log("📧 Preparing activation email...");
+  console.log("   From:", process.env.EMAIL_FROM);
+  console.log("   To:", newUser.email);
+  console.log("   Subject: Activate Your Account");
+  console.log("   Link:", activationLink);
 
   const activationEmailTemplate = (name, activationLink) => `
     <!DOCTYPE html>
@@ -108,18 +128,24 @@ export const register = asyncHandler(async (req, res) => {
   `;
 
   // Send activation email (fire and forget, but log if it fails)
+  console.log("🚀 Sending activation email...");
   sendEmail(
     newUser.email,
     "Activate Your Account",
     activationEmailTemplate(newUser.name, activationLink),
-  ).catch((error) => {
-    console.error(
-      "Failed to send activation email to",
-      newUser.email,
-      ":",
-      error,
-    );
-  });
+  )
+    .then((result) => {
+      if (result.success) {
+        console.log("✅ Email sent successfully to:", newUser.email);
+      } else {
+        console.error("❌ Email send failed:", result.error);
+      }
+      console.log("=".repeat(60) + "\n");
+    })
+    .catch((error) => {
+      console.error("❌ Error during email send:", error.message);
+      console.log("=".repeat(60) + "\n");
+    });
 
   return res.status(201).json({
     success: true,

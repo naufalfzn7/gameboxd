@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
+import { transport } from "./utils/mail.js"; // Initialize email transport
 
 import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
@@ -99,5 +100,13 @@ app.use("/api/games", gameRouter);
 app.use("/api/wishlist", wishListRouter);
 app.use("/api/reviews", reviewRouter);
 app.use("/api/favorites", favoriteRouter);
+
+// Start server if not in Vercel environment
+if (process.env.VERCEL !== "1") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Server is running on http://localhost:${PORT}`);
+  });
+}
 
 export default app;
