@@ -57,7 +57,8 @@ export const register = asyncHandler(async (req, res) => {
   });
 
   // ✅ GUNAKAN DOMAIN PRODUCTION
-  const activationLink = `${process.env.APP_URL}/api/auth/activate/${newUser.id}`;
+  const appUrl = process.env.APP_URL || "https://gameboxd-backend.vercel.app";
+  const activationLink = `${appUrl}/api/auth/activate/${newUser.id}`;
 
   const activationEmailTemplate = (name, activationLink) => `
     <div style="font-family: Arial, sans-serif; background-color:#f7f7f7; padding:20px;">
